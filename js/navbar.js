@@ -1,7 +1,7 @@
 document.write(`
 <header>
   <div>
-    <h1><a href="index.html">QueueStand</a></h1>
+    <h1><a href="index.html"><img src="assets/Logo.png" alt="QueueStand"></a></h1>
     <nav>
       <ul>
         <li><a href="about.html">About Us</a></li>
