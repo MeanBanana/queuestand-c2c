@@ -233,6 +233,43 @@ footer {
   box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
 }
 
+.auth-main {
+  max-width: 480px;
+}
+
+.auth-main form button {
+  width: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #9365c2 100%);
+  font-size: 1rem;
+  border-radius: 8px;
+}
+
+.auth-main form button:hover {
+  background: linear-gradient(135deg, #5a6fd6 0%, #7d52b0 100%);
+}
+
+.auth-link {
+  text-align: center;
+  margin-top: 1rem;
+  color: #4a5568;
+}
+
+.auth-link a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+  background: none;
+  padding: 0;
+  box-shadow: none;
+  display: inline;
+}
+
+.auth-link a:hover {
+  text-decoration: underline;
+  transform: none;
+  box-shadow: none;
+}
+
 @media (max-width: 768px) {
   nav ul {
     flex-direction: column;
