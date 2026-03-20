@@ -270,6 +270,125 @@ footer {
   box-shadow: none;
 }
 
+/* About Page */
+.about-hero {
+  text-align: center;
+  padding: 2rem 1rem 1rem;
+  margin-bottom: 2rem;
+}
+
+.about-hero h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.about-hero p {
+  max-width: 680px;
+  margin: 0 auto;
+  font-size: 1.1rem;
+  color: #4a5568;
+}
+
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+  text-align: center;
+}
+
+.stat {
+  background: linear-gradient(135deg, #667eea 0%, #9365c2 100%);
+  color: white;
+  padding: 1.5rem 1rem;
+  border-radius: 16px;
+}
+
+.stat strong {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.stat span {
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.about-grid .card {
+  margin-bottom: 0;
+}
+
+.about-grid .card h2 {
+  text-align: left;
+  font-size: 1.3rem;
+  margin-bottom: 0.75rem;
+}
+
+.about-grid .card ul {
+  padding-left: 1.2rem;
+  list-style: disc;
+  list-style-position: outside;
+}
+
+.about-grid .card li {
+  margin-bottom: 0.6rem;
+}
+
+.about-cta {
+  background: linear-gradient(135deg, #667eea 0%, #9365c2 100%);
+  border-radius: 16px;
+  padding: 2.5rem;
+  text-align: center;
+  color: white;
+}
+
+.about-cta h2 {
+  color: white;
+  margin-bottom: 0.75rem;
+}
+
+.about-cta p {
+  color: rgba(255,255,255,1);
+  margin-bottom: 1.5rem;
+  font-size: 1.05rem;
+}
+
+.about-cta a {
+  background: white;
+  color: #667eea;
+  padding: 0.85rem 2rem;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 700;
+  margin: 0 0.5rem;
+  display: inline-block;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+.about-cta a:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
+
+@media (max-width: 768px) {
+  .stats-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .about-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 768px) {
   nav ul {
     flex-direction: column;
