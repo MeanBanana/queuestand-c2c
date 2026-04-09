@@ -15,3 +15,21 @@ CREATE TABLE users (
 );
 
 ```
+Jobs
+```
+CREATE TABLE jobs (
+    job_id INT AUTO_INCREMENT PRIMARY KEY,
+    poster_id VARCHAR(13) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    location VARCHAR(255) NOT NULL,
+    required_datetime DATETIME NOT NULL,
+    pay_amount DECIMAL(10,2) NOT NULL,
+    status ENUM('open','assigned','in_progress','completed','cancelled') DEFAULT 'open',
+    assigned_stander_id VARCHAR(13) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (poster_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (assigned_stander_id) REFERENCES users(user_id) ON DELETE SET NULL
+);
+```
