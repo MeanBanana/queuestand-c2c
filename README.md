@@ -33,3 +33,19 @@ CREATE TABLE jobs (
     FOREIGN KEY (assigned_stander_id) REFERENCES users(user_id) ON DELETE SET NULL
 );
 ```
+Reveiws
+```
+CREATE TABLE reviews (
+    review_id     INT AUTO_INCREMENT PRIMARY KEY,
+    job_id        INT NOT NULL,
+    rater_id      VARCHAR(13) NOT NULL,        -- who gave the rating
+    rated_id      VARCHAR(13) NOT NULL,        -- who received the rating
+    rating        TINYINT(1) NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment       TEXT,
+    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (job_id)   REFERENCES jobs(job_id) ON DELETE CASCADE,
+    FOREIGN KEY (rater_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (rated_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+```
