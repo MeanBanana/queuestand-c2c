@@ -49,3 +49,17 @@ CREATE TABLE reviews (
     FOREIGN KEY (rated_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 ```
+Transactions
+```
+CREATE TABLE transactions (
+    transaction_id INT AUTO_INCREMENT PRIMARY KEY,
+    job_id INT NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    status ENUM('pending','paid','released','refunded') 		DEFAULT 'pending',
+    payment_gateway VARCHAR(50) DEFAULT 'PayFast',
+    gateway_tx_id VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (job_id) REFERENCES jobs(job_id) ON DELETE CASCADE
+);
+```
