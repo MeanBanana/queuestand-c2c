@@ -58,7 +58,7 @@ nav a:hover {
 
 main {
   max-width: 1200px;
-  margin: 2rem auto;
+  margin: 2rem;
   padding: 3rem;
   background: white;
   border-radius: 24px;
@@ -235,6 +235,8 @@ footer {
 
 .auth-main {
   max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .auth-main form button {
@@ -377,6 +379,164 @@ footer {
 .about-cta a:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
+
+/* Dashboard */
+.dash-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.dash-header h1 {
+  margin-bottom: 0.25rem;
+  font-size: 2rem;
+}
+
+.dash-role {
+  color: #f0932b;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-primary {
+  display: inline-block;
+  background: linear-gradient(135deg, #f0932b 0%, #e84393 100%);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 15px rgba(232, 67, 147, 0.3);
+  white-space: nowrap;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(232, 67, 147, 0.45);
+}
+
+.dash-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, #f0932b 0%, #e84393 100%);
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-align: center;
+  color: white;
+}
+
+.stat-number {
+  display: block;
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.4rem;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dash-section-title {
+  font-size: 1.3rem !important;
+  text-align: left !important;
+  margin-bottom: 1.25rem !important;
+  color: #1a1a1a;
+}
+
+.dash-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.dash-card {
+  background: #fafafa;
+  border: 1px solid #f0f0f0;
+  border-radius: 14px;
+  padding: 1.5rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.dash-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(232, 67, 147, 0.15);
+  border-color: #e84393;
+}
+
+.dash-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.dash-card-top h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.dash-card p {
+  font-size: 0.9rem;
+  color: #4a5568;
+  margin-bottom: 0.4rem;
+}
+
+.dash-pay {
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  color: #007260 !important;
+  margin-top: 0.75rem !important;
+}
+
+.badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.badge-open      { background: #e8f5e9; color: #2e7d32; }
+.badge-assigned  { background: #e3f2fd; color: #1565c0; }
+.badge-progress  { background: #fff3e0; color: #e65100; }
+.badge-completed { background: #f3e5f5; color: #6a1b9a; }
+.badge-cancelled { background: #fce4ec; color: #b71c1c; }
+
+.dash-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #4a5568;
+}
+
+.dash-empty p {
+  margin-bottom: 1.25rem;
+  font-size: 1.05rem;
+}
+
+@media (max-width: 768px) {
+  .dash-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 768px) {
