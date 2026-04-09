@@ -9,9 +9,9 @@ CREATE TABLE users (
     phone VARCHAR(10),
     role ENUM('job_poster', 'queue_stander', 'admin') NOT NULL DEFAULT 'job_poster',
     is_verified TINYINT(1) DEFAULT 0,
-    address VARCHAR(255),
     city VARCHAR(100) DEFAULT 'Johannesburg',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
 ```
