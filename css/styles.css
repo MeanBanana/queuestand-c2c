@@ -569,3 +569,266 @@ footer {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Toast ── */
+.toast {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+  padding: 0.85rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  z-index: 9999;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+  transition: opacity 0.5s, transform 0.5s;
+}
+.toast-success { background: #e8f5e9; color: #2e7d32; border-left: 4px solid #2e7d32; }
+.toast-warning { background: #fff3e0; color: #e65100; border-left: 4px solid #e65100; }
+.toast-hide    { opacity: 0; transform: translateY(-12px); pointer-events: none; }
+
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9000;
+}
+.modal-box {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  width: min(520px, 92vw);
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+.modal-close {
+  position: absolute; top: 1rem; right: 1rem;
+  background: none; border: none; font-size: 1.2rem;
+  cursor: pointer; color: #4a5568;
+}
+.modal-box h3 { margin-bottom: 1.25rem; font-size: 1.2rem; }
+
+/* ── Review items ── */
+.review-item {
+  border-bottom: 1px solid #f0f0f0;
+  padding: 0.85rem 0;
+}
+.review-item:last-child { border-bottom: none; }
+.review-stars { color: #f0932b; font-size: 1.1rem; margin-bottom: 0.3rem; }
+.review-comment { color: #1a1a1a; margin-bottom: 0.25rem; }
+.review-meta { font-size: 0.8rem; color: #888; }
+
+/* ── Card expand ── */
+.btn-expand {
+  background: none;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  color: #4a5568;
+  margin-top: 0.75rem;
+  transition: background 0.2s;
+}
+.btn-expand:hover { background: #f5f5f5; }
+
+.card-expand {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f0f0f0;
+}
+.expand-desc { color: #4a5568; font-size: 0.9rem; margin-bottom: 0.75rem; }
+
+/* ── Stander info ── */
+.stander-info {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+.stander-title { font-weight: 700; color: #007260; margin-bottom: 0.4rem; }
+.stander-info p { font-size: 0.88rem; color: #1a1a1a; margin-bottom: 0.25rem; }
+.no-stander { font-size: 0.88rem; color: #888; margin-bottom: 0.75rem; }
+
+.btn-reviews {
+  background: #e3f2fd;
+  color: #1565c0;
+  border: none;
+  border-radius: 8px;
+  padding: 0.4rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background 0.2s;
+}
+.btn-reviews:hover { background: #bbdefb; }
+
+/* ── Cancel button ── */
+.btn-cancel {
+  background: #fce4ec;
+  color: #b71c1c;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.75rem;
+  transition: background 0.2s;
+}
+.btn-cancel:hover { background: #f8bbd0; }
+
+/* ── Notifications bell ── */
+.dash-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btn-notif {
+  position: relative;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 0.55rem 0.85rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-notif:hover { background: #ebebeb; }
+
+.notif-badge {
+  position: absolute;
+  top: -6px; right: -6px;
+  background: #e84393;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  border-radius: 50%;
+  width: 18px; height: 18px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ── Notification items ── */
+.notif-item {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.notif-item:last-of-type { border-bottom: none; }
+.notif-item p { font-size: 0.9rem; color: #1a1a1a; margin-bottom: 0.2rem; }
+.notif-unread { background: #fff8f0; border-radius: 8px; padding: 0.75rem; margin-bottom: 0.4rem; }
+.notif-time { font-size: 0.75rem; color: #888; }
+
+.btn-mark-read {
+  display: inline-block;
+  margin-top: 1rem;
+  font-size: 0.82rem;
+  color: #1565c0;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ── Applicants section ── */
+.applicants-section {
+  margin-top: 1rem;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 0.75rem;
+}
+.applicants-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #1a1a1a;
+  margin-bottom: 0.75rem;
+}
+.applicant-card {
+  background: #fafafa;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  padding: 0.85rem;
+  margin-bottom: 0.65rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.applicant-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.applicant-info strong { font-size: 0.92rem; color: #1a1a1a; }
+.applicant-meta { font-size: 0.8rem; color: #4a5568; }
+.applicant-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+/* ── Accept / Decline / Advance buttons ── */
+.btn-accept {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #a5d6a7;
+  border-radius: 8px;
+  padding: 0.38rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-accept:hover { background: #c8e6c9; }
+
+.btn-decline {
+  background: #fce4ec;
+  color: #b71c1c;
+  border: 1px solid #f48fb1;
+  border-radius: 8px;
+  padding: 0.38rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-decline:hover { background: #f8bbd0; }
+
+.btn-advance {
+  background: linear-gradient(135deg, #f0932b 0%, #e84393 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.55rem 1.2rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: opacity 0.2s;
+}
+.btn-advance:hover { opacity: 0.88; }
+
+/* ── Stander: application status row ── */
+.app-status-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  font-size: 0.88rem;
+  color: #4a5568;
+}
+
+/* ── Applied button state ── */
+button.btn-applied {
+  background: #e0e0e0;
+  color: #888;
+  border: none;
+  border-radius: 5px;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.9rem;
+  cursor: not-allowed;
+}

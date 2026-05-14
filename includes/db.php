@@ -1,6 +1,6 @@
 <?php
 $host = 'localhost';
-$db   = 'queue_stander';
+$db = 'queue_stander';
 $user = 'root';
 $pass = '';
 

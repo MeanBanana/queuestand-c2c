@@ -3,8 +3,6 @@ require_once 'includes/auth.php';
 require_once 'includes/db.php';
 requireLogin();
 
-$error = $success = '';
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title    = trim($_POST['title']    ?? '');
     $location = trim($_POST['location'] ?? '');
@@ -14,7 +12,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $stmt = $pdo->prepare("INSERT INTO jobs (poster_id, title, description, location, required_datetime, pay_amount) VALUES (?,?,?,?,?,?)");
     $stmt->execute([currentUser()['id'], $title, $desc, $location, $datetime, $pay]);
-    $success = 'Job posted successfully!';
+    header('Location: dashboard.php?toast=job_posted');
+    exit;
 }
 ?>
 <!doctype html>
@@ -30,9 +29,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <main>
       <h1>Post a Queue Job</h1>
-      <?php if ($success): ?><p class="success"><?= $success ?></p><?php endif; ?>
-      <?php if ($error): ?><p class="error"><?= htmlspecialchars($error) ?></p><?php endif; ?>
-
       <form method="POST">
         <div>
           <label>Queue Location / Service</label><br />
