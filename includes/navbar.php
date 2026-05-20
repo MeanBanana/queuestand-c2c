@@ -12,6 +12,7 @@
           <li><a href="/ITECA_SumativeAssessment/dashboard.php">Dashboard</a></li>
           <li><a href="/ITECA_SumativeAssessment/profile.php"><?= htmlspecialchars($_SESSION['first_name']) ?></a></li>
           <li><a href="/ITECA_SumativeAssessment/logout.php">Logout</a></li>
+          <li><a href="/ITECA_SumativeAssessment/checkout.php">Checkout</a></li>
         <?php else: ?>
           <li><a href="/ITECA_SumativeAssessment/post-job.php">Post A Job</a></li>
           <li><a href="/ITECA_SumativeAssessment/login.php">Login</a></li>
