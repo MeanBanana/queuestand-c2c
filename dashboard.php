@@ -383,6 +383,11 @@ $toastMessages = [
                   <p class="no-stander">No applicants yet.</p>
                 <?php endif; ?>
 
+                <!-- PAY NOW (assigned jobs only) -->
+                <?php if ($job['status'] === 'assigned'): ?>
+                  <a href="checkout.php?job_id=<?= $job['job_id'] ?>" class="btn-primary" style="display:inline-block;margin-top:0.75rem">💳 Pay Now</a>
+                <?php endif; ?>
+
                 <!-- STATUS PROGRESSION -->
                 <?php
                 $nextStatus = ['assigned' => 'in_progress', 'in_progress' => 'completed'];

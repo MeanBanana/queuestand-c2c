@@ -10,6 +10,7 @@ document.write(`
         <li><a href="post-job.html">Post A Job</a></li>
         <li><a href="login.html">Login</a></li>
         <li><a href="register.html">Sign Up</a></li>
+        <li><a href="checkout.html</li>
       </ul>
     </nav>
   </div>
