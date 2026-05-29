@@ -19,40 +19,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['role']       = $user['role'];
         header('Location: admin-dashboard.php');
         exit;
-    } else {
-        $error = 'Invalid admin credentials.';
     }
+
+    $error = 'Invalid admin credentials.';
 }
 ?>
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Login - QueueStand</title>
-    <link rel="stylesheet" href="../css/styles.css" />
-  </head>
-  <body>
-    <header>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login - QueueStand</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+</head>
+<body>
+  <?php include 'admin-navbar.php'; ?>
+
+  <main class="auth-main">
+    <h2>Admin Login</h2>
+    <?php if ($error): ?>
+      <p class="msg-error"><?= htmlspecialchars($error) ?></p>
+    <?php endif; ?>
+    <form method="POST">
       <div>
-        <h1><a href="/ITECA_SumativeAssessment/admin/admin-login.php" style="color:#c3fcf1;text-decoration:none;font-size:1.4rem;">⚙ QueueStand Admin</a></h1>
-        <nav><ul><li><a href="/ITECA_SumativeAssessment/login.php">← User Login</a></li></ul></nav>
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required />
       </div>
-    </header>
-    <main class="auth-main">
-      <h2>Admin Login</h2>
-      <?php if ($error): ?><p class="error"><?= htmlspecialchars($error) ?></p><?php endif; ?>
-      <form method="POST">
-        <div>
-          <label>Email</label>
-          <input type="email" name="email" required />
-        </div>
-        <div>
-          <label>Password</label>
-          <input type="password" name="password" required />
-        </div>
-        <div><button type="submit">Login</button></div>
-      </form>
-    </main>
-  </body>
+      <div>
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required />
+      </div>
+      <div><button type="submit">Login</button></div>
+    </form>
+    <p class="auth-link"><a href="/ITECA_SumativeAssessment/login.php">← User Login</a></p>
+  </main>
+
+  <script src="../js/footer.js"></script>
+</body>
 </html>

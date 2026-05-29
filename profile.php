@@ -31,13 +31,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Profile | QueueStand</title>
     <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/components.css" />
   </head>
   <body>
     <?php include 'includes/navbar.php'; ?>
 
     <main class="auth-main">
       <h2>My Profile</h2>
-      <?php if ($success): ?><p class="success"><?= $success ?></p><?php endif; ?>
+      <?php if ($success): ?><p class="msg-success"><?= htmlspecialchars($success) ?></p><?php endif; ?>
 
       <form method="POST">
         <div>

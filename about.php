@@ -1,22 +1,20 @@
 <?php require_once 'includes/auth.php'; ?>
 <!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>About Us - QueueStand</title>
   <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/components.css" />
 </head>
-
 <body>
   <?php include 'includes/navbar.php'; ?>
 
   <main>
     <div class="about-hero">
       <h1>About QueueStand</h1>
-      <p>South Africa's trusted marketplace connecting busy people with reliable standers. We turn hours lost in queues
-        into time saved — and income earned.</p>
+      <p>South Africa's trusted marketplace connecting busy people with reliable standers. We turn hours lost in queues into time saved — and income earned.</p>
     </div>
 
     <div class="stats-bar">
@@ -28,15 +26,11 @@
     <div class="about-grid">
       <div class="card">
         <h2>Our Mission</h2>
-        <p>No one should lose a full day just to renew an ID or collect a grant. We formalise informal queue-standing
-          into a safe, transparent marketplace — helping professionals reclaim their time while giving gig workers
-          dignified, consistent income.</p>
+        <p>No one should lose a full day just to renew an ID or collect a grant. We formalise informal queue-standing into a safe, transparent marketplace — helping professionals reclaim their time while giving gig workers dignified, consistent income.</p>
       </div>
       <div class="card">
         <h2>The Problem We Solve</h2>
-        <p>14-hour waits at Home Affairs. Overnight lines at SASSA. Hours lost at clinics and banks. These queues steal
-          productivity and cost real money. Informal arrangements lead to disputes and safety risks. We fix that with
-          technology.</p>
+        <p>14-hour waits at Home Affairs. Overnight lines at SASSA. Hours lost at clinics and banks. These queues steal productivity and cost real money. Informal arrangements lead to disputes and safety risks. We fix that with technology.</p>
       </div>
       <div class="card">
         <h2>What Makes Us Different</h2>
@@ -49,8 +43,7 @@
       </div>
       <div class="card">
         <h2>Who We Serve</h2>
-        <p>Busy professionals, small business owners, and parents who can't afford to lose a day — and hardworking
-          youth, side-hustlers, and community members looking for flexible, dignified work opportunities.</p>
+        <p>Busy professionals, small business owners, and parents who can't afford to lose a day — and hardworking youth, side-hustlers, and community members looking for flexible, dignified work opportunities.</p>
       </div>
     </div>
 
@@ -64,5 +57,4 @@
 
   <script src="js/footer.js"></script>
 </body>
-
 </html>

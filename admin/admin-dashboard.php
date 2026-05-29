@@ -75,6 +75,7 @@ $statusBadge = [
         Recent Jobs
         <a href="admin-jobs.php">View all →</a>
       </div>
+      <div class="table-wrapper">
       <table class="admin-table">
         <thead>
           <tr>
@@ -99,6 +100,7 @@ $statusBadge = [
           <?php endforeach; ?>
         </tbody>
       </table>
+      </div>
     </div>
 
     <div class="admin-section">
@@ -106,6 +108,7 @@ $statusBadge = [
         Recent Users
         <a href="admin-users.php">View all →</a>
       </div>
+      <div class="table-wrapper">
       <table class="admin-table">
         <thead>
           <tr>
@@ -132,6 +135,7 @@ $statusBadge = [
           <?php endforeach; ?>
         </tbody>
       </table>
+      </div>
     </div>
   </main>
 

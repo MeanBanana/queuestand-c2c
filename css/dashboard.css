@@ -279,4 +279,29 @@
   .dash-stats {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .dash-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dash-header-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .dash-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .applicant-card {
+    flex-direction: column;
+  }
+
+  .applicant-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
 }

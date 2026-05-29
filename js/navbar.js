@@ -1,18 +1,1 @@
-document.write(`
-<header>
-  <div>
-    <h1><a href="index.html"><img src="assets/Logo.png" alt="QueueStand"></a></h1>
-    <nav>
-      <ul>
-        <li><a href="about.html">About Us</a></li>
-        <li><a href="how-it-works.html">How It Works</a></li>
-        <li><a href="browse-jobs.html">Find Standers</a></li>
-        <li><a href="post-job.html">Post A Job</a></li>
-        <li><a href="login.html">Login</a></li>
-        <li><a href="register.html">Sign Up</a></li>
-        <li><a href="checkout.html</li>
-      </ul>
-    </nav>
-  </div>
-</header>
-`);
+// Navigation toggle is handled by footer.js which is loaded on every page.

@@ -1,5 +1,26 @@
 /* Reusable Component Styles */
 
+/* Feedback Messages */
+.msg-error {
+  background: #fce4ec;
+  color: #b71c1c;
+  border-left: 4px solid #e53935;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+.msg-success {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-left: 4px solid #43a047;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
 /* Badges */
 .badge {
   font-size: 0.75rem;

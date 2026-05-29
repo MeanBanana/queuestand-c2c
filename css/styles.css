@@ -1,4 +1,4 @@
-﻿* {
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -18,49 +18,115 @@ header {
   background: #007260;
   backdrop-filter: blur(10px);
   color: white;
-  padding: 0 2rem;
+  padding: 0 clamp(1rem, 4vw, 3rem);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   width: 100%;
+  position: relative;
 }
 
 header > div {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: clamp(4rem, 8vw, 7rem);
 }
 
 header h1 a {
   color: #c3fcf1;
   text-decoration: none;
-  font-size: 1.8rem;
+  font-size: clamp(1.1rem, 2.5vw, 1.8rem);
   font-weight: 700;
+  display: flex;
+  align-items: center;
 }
 
 header h1 img {
-  height: 10rem;
-  vertical-align: middle;
+  height: clamp(3.5rem, 7vw, 6.5rem);
+  width: auto;
+  display: block;
+}
+
+.nav-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: white;
+  font-size: clamp(0.85rem, 1.5vw, 1rem);
+  font-weight: 600;
+  cursor: pointer;
+  padding: clamp(0.4rem, 1vw, 0.6rem) clamp(0.7rem, 1.5vw, 1rem);
+  transition: background 0.2s, border-color 0.2s;
+  letter-spacing: 0.3px;
+}
+
+.nav-toggle:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.nav-toggle-icon {
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  line-height: 1;
+}
+
+.nav-toggle-label {
+  font-size: clamp(0.8rem, 1.4vw, 0.95rem);
+}
+
+#main-nav {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: clamp(0.5rem, 2vw, 1.5rem);
+  background: #005a4a;
+  min-width: clamp(180px, 25vw, 240px);
+  border-radius: 0 0 14px 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+#main-nav.open {
+  display: block;
 }
 
 nav ul {
   list-style: none;
   display: flex;
-  gap: 2rem;
+  flex-direction: column;
+  padding: 0.4rem 0;
+}
+
+nav ul li a {
+  display: block;
+  padding: clamp(0.6rem, 1.2vw, 0.85rem) clamp(1rem, 2vw, 1.5rem);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: clamp(0.85rem, 1.4vw, 0.95rem);
+}
+
+nav ul li:last-child a {
+  border-bottom: none;
 }
 
 nav a {
-  color: white;
+  color: rgba(255, 255, 255, 0.9);
   text-decoration: none;
-  transition: color 0.3s;
+  transition: background 0.15s, color 0.15s, padding-left 0.15s;
   font-weight: 500;
 }
 
 nav a:hover {
+  background: rgba(255, 255, 255, 0.1);
   color: #c3fcf1;
+  padding-left: clamp(1.2rem, 2.5vw, 1.8rem);
 }
 
 main {
   max-width: 1200px;
-  margin: 2rem;
+  margin: 2rem auto;
   padding: 3rem;
   background: white;
   border-radius: 24px;
@@ -389,38 +455,7 @@ footer {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
-@media (max-width: 768px) {
-  .stats-bar {
-    grid-template-columns: 1fr;
-  }
-
-  .about-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 768px) {
-  nav ul {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  main {
-    margin: 1rem;
-    padding: 1rem;
-  }
-
-  section a {
-    display: block;
-    margin-bottom: 0.5rem;
-  }
-
-  .grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Search Bar */
+/* Browse Jobs Search Bar */
 .browse-header {
   display: flex;
   justify-content: space-between;
@@ -500,7 +535,6 @@ footer {
   transform: scale(1.15);
 }
 
-/* No Results */
 .no-results {
   text-align: center;
   padding: 3rem 1rem;
@@ -511,18 +545,46 @@ footer {
   margin-top: 1rem;
 }
 
-/* Responsive */
+/* Mobile */
 @media (max-width: 768px) {
+  main {
+    margin: 1rem;
+    padding: 1.25rem;
+    border-radius: 16px;
+  }
+
+  main h1 {
+    font-size: 2rem;
+  }
+
+  section a {
+    display: block;
+    margin-bottom: 0.5rem;
+    margin-right: 0;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .about-grid {
+    grid-template-columns: 1fr;
+  }
+
   .browse-header {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .search-container {
     max-width: 100%;
   }
-  
+
   .browse-header h1 {
-    font-size: 2.2rem;
+    font-size: 2rem;
   }
 }
