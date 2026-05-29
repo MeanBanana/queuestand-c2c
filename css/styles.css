@@ -22,6 +22,7 @@ header {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   width: 100%;
   position: relative;
+  z-index: 100;
 }
 
 header > div {
@@ -85,7 +86,7 @@ header h1 img {
   min-width: clamp(180px, 25vw, 240px);
   border-radius: 0 0 14px 14px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  z-index: 1000;
+  z-index: 9999;
   overflow: hidden;
 }
 
@@ -131,6 +132,8 @@ main {
   background: white;
   border-radius: 24px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  position: relative;
+  z-index: 1;
 }
 
 main h1 {
