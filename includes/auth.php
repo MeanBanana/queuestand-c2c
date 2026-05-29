@@ -12,6 +12,13 @@ function requireLogin(): void {
     }
 }
 
+function denyAdmin(): void {
+    if (isLoggedIn() && $_SESSION['role'] === 'admin') {
+        header('Location: /ITECA_SumativeAssessment/admin/admin-dashboard.php');
+        exit;
+    }
+}
+
 function requireRole(string $role): void {
     if (!isLoggedIn()) {
         $redirect = $role === 'admin'

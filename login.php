@@ -2,6 +2,13 @@
 require_once 'includes/auth.php';
 require_once 'includes/db.php';
 
+if (isLoggedIn()) {
+    header('Location: ' . ($_SESSION['role'] === 'admin'
+        ? '/ITECA_SumativeAssessment/admin/admin-dashboard.php'
+        : '/ITECA_SumativeAssessment/dashboard.php'));
+    exit;
+}
+
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

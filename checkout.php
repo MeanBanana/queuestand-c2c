@@ -2,6 +2,7 @@
 require_once 'includes/auth.php';
 require_once 'includes/db.php';
 requireLogin();
+denyAdmin();
 
 $job_id = (int) ($_GET['job_id'] ?? 0);
 if (!$job_id) {
