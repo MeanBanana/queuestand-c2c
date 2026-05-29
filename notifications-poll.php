@@ -1,7 +1,7 @@
 <?php
 require_once 'includes/auth.php';
 require_once 'includes/db.php';
-requireLogin();
+guardRoute('user');
 
 header('Content-Type: application/json');
 
