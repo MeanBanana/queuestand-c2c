@@ -1,7 +1,7 @@
 <?php
 require_once '../includes/auth.php';
 require_once '../includes/db.php';
-guardRoute('public');
+guardRoute('admin');
 
 $error = '';
 
