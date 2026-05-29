@@ -33,6 +33,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="../css/styles.css" />
   </head>
   <body>
+    <header>
+      <div>
+        <h1><a href="/ITECA_SumativeAssessment/admin/admin-login.php" style="color:#c3fcf1;text-decoration:none;font-size:1.4rem;">⚙ QueueStand Admin</a></h1>
+        <nav><ul><li><a href="/ITECA_SumativeAssessment/login.php">← User Login</a></li></ul></nav>
+      </div>
+    </header>
     <main class="auth-main">
       <h2>Admin Login</h2>
       <?php if ($error): ?><p class="error"><?= htmlspecialchars($error) ?></p><?php endif; ?>

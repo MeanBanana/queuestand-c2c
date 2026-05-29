@@ -1,0 +1,333 @@
+/* Reusable Component Styles */
+
+/* Badges */
+.badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.badge-open {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.badge-assigned {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.badge-progress {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.badge-completed {
+  background: #f3e5f5;
+  color: #6a1b9a;
+}
+
+.badge-cancelled {
+  background: #fce4ec;
+  color: #b71c1c;
+}
+
+/* Buttons */
+.btn-primary {
+  display: inline-block;
+  background: linear-gradient(135deg, #f0932b 0%, #e84393 100%);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 15px rgba(232, 67, 147, 0.3);
+  white-space: nowrap;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(232, 67, 147, 0.45);
+}
+
+.btn-accept {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #a5d6a7;
+  border-radius: 8px;
+  padding: 0.38rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-accept:hover {
+  background: #c8e6c9;
+}
+
+.btn-decline {
+  background: #fce4ec;
+  color: #b71c1c;
+  border: 1px solid #f48fb1;
+  border-radius: 8px;
+  padding: 0.38rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-decline:hover {
+  background: #f8bbd0;
+}
+
+.btn-cancel {
+  background: #fce4ec;
+  color: #b71c1c;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.75rem;
+  transition: background 0.2s;
+}
+
+.btn-cancel:hover {
+  background: #f8bbd0;
+}
+
+.btn-reviews {
+  background: #e3f2fd;
+  color: #1565c0;
+  border: none;
+  border-radius: 8px;
+  padding: 0.4rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background 0.2s;
+}
+
+.btn-reviews:hover {
+  background: #bbdefb;
+}
+
+.btn-advance {
+  background: linear-gradient(135deg, #f0932b 0%, #e84393 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.55rem 1.2rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: opacity 0.2s;
+}
+
+.btn-advance:hover {
+  opacity: 0.88;
+}
+
+.btn-expand {
+  background: none;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  color: #4a5568;
+  margin-top: 0.75rem;
+  transition: background 0.2s;
+}
+
+.btn-expand:hover {
+  background: #f5f5f5;
+}
+
+.btn-notif {
+  position: relative;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 0.55rem 0.85rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-notif:hover {
+  background: #ebebeb;
+}
+
+.btn-applied {
+  background: #e0e0e0;
+  color: #888;
+  border: none;
+  border-radius: 5px;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.9rem;
+  cursor: not-allowed;
+}
+
+.btn-mark-read {
+  display: inline-block;
+  margin-top: 1rem;
+  font-size: 0.82rem;
+  color: #1565c0;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Toast Notifications */
+.toast {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+  padding: 0.85rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  z-index: 9999;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+  transition: opacity 0.5s, transform 0.5s;
+}
+
+.toast-success {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-left: 4px solid #2e7d32;
+}
+
+.toast-warning {
+  background: #fff3e0;
+  color: #e65100;
+  border-left: 4px solid #e65100;
+}
+
+.toast-hide {
+  opacity: 0;
+  transform: translateY(-12px);
+  pointer-events: none;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9000;
+}
+
+.modal-box {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  width: min(520px, 92vw);
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #4a5568;
+}
+
+.modal-box h3 {
+  margin-bottom: 1.25rem;
+  font-size: 1.2rem;
+}
+
+/* Notification Badge */
+.notif-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #e84393;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Cards */
+.card {
+  background: white;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s, box-shadow 0.3s;
+  border: 1px solid #f0f0f0;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(232, 67, 147, 0.45);
+  border-color: #e84393;
+}
+
+.card h2 {
+  color: #1a1a1a;
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 3px solid #f0932b;
+}
+
+.card h3 {
+  color: #1a1a1a;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.card p {
+  color: #4a5568;
+  margin-bottom: 1rem;
+  line-height: 1.7;
+  font-size: 1rem;
+}
+
+.card ul {
+  margin: 1rem 0;
+  padding-left: 0;
+  list-style-position: inside;
+}
+
+.card li {
+  color: #555;
+  margin-bottom: 0.5rem;
+}
+
+.card-expand {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f0f0f0;
+}

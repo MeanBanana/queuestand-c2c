@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $last_name  = trim($_POST['last_name']  ?? '');
     $email      = trim($_POST['email']      ?? '');
     $phone      = trim($_POST['phone']      ?? '');
-    $role       = $_POST['role']            ?? 'job_poster';
+    $role       = 'user';
     $password   = $_POST['password']        ?? '';
     $confirm    = $_POST['confirm']         ?? '';
     $user_id    = trim($_POST['user_id']    ?? ''); // SA ID number (13 digits)
@@ -66,13 +66,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div>
           <label>Phone</label>
           <input type="text" name="phone" placeholder="0812345678" maxlength="10" />
-        </div>
-        <div>
-          <label>I want to</label>
-          <select name="role">
-            <option value="job_poster">Post Queue Jobs</option>
-            <option value="queue_stander">Stand in Queues</option>
-          </select>
         </div>
         <div>
           <label>Password</label>

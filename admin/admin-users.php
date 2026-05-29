@@ -3,57 +3,157 @@ require_once '../includes/auth.php';
 require_once '../includes/db.php';
 requireRole('admin');
 
-// Toggle verification
-if (isset($_GET['verify'])) {
-    $pdo->prepare("UPDATE users SET is_verified = 1 - is_verified WHERE user_id = ?")->execute([(int)$_GET['verify']]);
-    header('Location: admin-users.php');
+$me = $_SESSION['user_id'];
+$toast = '';
+
+// POST actions
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $uid = $_POST['user_id'] ?? '';
+
+    if (isset($_POST['toggle_role']) && $uid !== $me) {
+        $current = $pdo->prepare("SELECT role FROM users WHERE user_id=?");
+        $current->execute([$uid]);
+        $role = $current->fetchColumn();
+        $newRole = $role === 'admin' ? 'user' : 'admin';
+        $pdo->prepare("UPDATE users SET role=? WHERE user_id=?")->execute([$newRole, $uid]);
+        $toast = $newRole === 'admin' ? 'promoted' : 'demoted';
+    }
+
+    if (isset($_POST['toggle_verify'])) {
+        $pdo->prepare("UPDATE users SET is_verified = 1 - is_verified WHERE user_id=?")->execute([$uid]);
+        $toast = 'verify_toggled';
+    }
+
+    if (isset($_POST['delete_user']) && $uid !== $me) {
+        $pdo->prepare("DELETE FROM users WHERE user_id=?")->execute([$uid]);
+        $toast = 'deleted';
+    }
+
+    header('Location: admin-users.php?toast=' . $toast);
     exit;
 }
 
-$users = $pdo->query("SELECT * FROM users ORDER BY created_at DESC")->fetchAll();
+$toast = $_GET['toast'] ?? '';
+$search = trim($_GET['q'] ?? '');
+
+$query = "SELECT u.*,
+            (SELECT COUNT(*) FROM jobs WHERE poster_id = u.user_id) AS jobs_posted,
+            (SELECT COUNT(*) FROM jobs WHERE assigned_stander_id = u.user_id) AS jobs_stood
+          FROM users u
+          WHERE 1=1";
+$params = [];
+
+if ($search !== '') {
+    $query .= " AND (u.first_name LIKE ? OR u.last_name LIKE ? OR u.email LIKE ? OR u.user_id LIKE ?)";
+    $like = "%$search%";
+    $params = [$like, $like, $like, $like];
+}
+
+$query .= " ORDER BY u.created_at DESC";
+$stmt = $pdo->prepare($query);
+$stmt->execute($params);
+$users = $stmt->fetchAll();
+
+$toastMessages = [
+    'promoted'       => ['msg' => 'User promoted to admin.', 'type' => 'toast-success'],
+    'demoted'        => ['msg' => 'Admin demoted to user.', 'type' => 'toast-warning'],
+    'verify_toggled' => ['msg' => 'Verification status updated.', 'type' => 'toast-success'],
+    'deleted'        => ['msg' => 'User deleted.', 'type' => 'toast-warning'],
+];
 ?>
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Manage Users | QueueStand Admin</title>
-    <link rel="stylesheet" href="../css/styles.css" />
-  </head>
-  <body>
-    <header>
-      <div>
-        <h1>QueueStand Admin</h1>
-        <nav><ul>
-          <li><a href="admin-dashboard.php">Dashboard</a></li>
-          <li><a href="admin-users.php">Users</a></li>
-          <li><a href="../logout.php">Logout</a></li>
-        </ul></nav>
-      </div>
-    </header>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Users | QueueStand Admin</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/dashboard.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/admin.css" />
+</head>
+<body>
+  <?php include 'admin-navbar.php'; ?>
 
-    <main>
-      <h2>All Users</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Verified</th><th>Joined</th><th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php foreach ($users as $u): ?>
-          <tr>
-            <td><?= htmlspecialchars($u['user_id']) ?></td>
-            <td><?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name']) ?></td>
-            <td><?= htmlspecialchars($u['email']) ?></td>
-            <td><?= htmlspecialchars($u['role']) ?></td>
-            <td><?= $u['is_verified'] ? 'Yes' : 'No' ?></td>
-            <td><?= htmlspecialchars($u['created_at']) ?></td>
-            <td><a href="?verify=<?= $u['user_id'] ?>"><?= $u['is_verified'] ? 'Unverify' : 'Verify' ?></a></td>
-          </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
-    </main>
-  </body>
+  <?php if ($toast && isset($toastMessages[$toast])): ?>
+    <div id="toast" class="toast <?= $toastMessages[$toast]['type'] ?>"><?= $toastMessages[$toast]['msg'] ?></div>
+  <?php endif; ?>
+
+  <main>
+    <div class="dash-header">
+      <h1>Manage Users</h1>
+    </div>
+
+    <form method="GET" class="search-bar">
+      <input type="text" name="q" placeholder="Search by name, email or ID…" value="<?= htmlspecialchars($search) ?>" />
+      <button type="submit">Search</button>
+      <?php if ($search): ?><a href="admin-users.php" class="btn-cancel btn-clear-filter">Clear</a><?php endif; ?>
+    </form>
+
+    <p class="user-count"><?= count($users) ?> user<?= count($users) !== 1 ? 's' : '' ?> found</p>
+
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Role</th>
+          <th>Verified</th>
+          <th>Jobs Posted</th>
+          <th>Jobs Stood</th>
+          <th>Joined</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($users as $u): $isSelf = $u['user_id'] === $me; ?>
+        <tr>
+          <td><?= htmlspecialchars($u['user_id']) ?></td>
+          <td><?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name']) ?><?= $isSelf ? ' <span class="badge badge-progress">You</span>' : '' ?></td>
+          <td><?= htmlspecialchars($u['email']) ?></td>
+          <td><?= htmlspecialchars($u['phone'] ?? '—') ?></td>
+          <td><span class="badge <?= $u['role']==='admin' ? 'badge-progress' : 'badge-open' ?>"><?= ucfirst($u['role']) ?></span></td>
+          <td><?= $u['is_verified'] ? '<span class="badge badge-completed">Yes</span>' : '<span class="badge badge-cancelled">No</span>' ?></td>
+          <td><?= $u['jobs_posted'] ?></td>
+          <td><?= $u['jobs_stood'] ?></td>
+          <td><?= date('d M Y', strtotime($u['created_at'])) ?></td>
+          <td>
+            <div class="action-group">
+              <!-- Toggle verify -->
+              <form method="POST" class="action-form-inline">
+                <input type="hidden" name="user_id" value="<?= $u['user_id'] ?>">
+                <button type="submit" name="toggle_verify" class="<?= $u['is_verified'] ? 'btn-decline' : 'btn-accept' ?> btn-sm">
+                  <?= $u['is_verified'] ? 'Unverify' : 'Verify' ?>
+                </button>
+              </form>
+              <?php if (!$isSelf): ?>
+              <!-- Toggle role -->
+              <form method="POST" class="action-form-inline" onsubmit="return confirm('<?= $u['role']==='admin' ? 'Demote this admin to user?' : 'Promote this user to admin?' ?>')">
+                <input type="hidden" name="user_id" value="<?= $u['user_id'] ?>">
+                <button type="submit" name="toggle_role" class="<?= $u['role']==='admin' ? 'btn-decline' : 'btn-reviews' ?> btn-sm">
+                  <?= $u['role']==='admin' ? 'Demote' : 'Make Admin' ?>
+                </button>
+              </form>
+              <!-- Delete -->
+              <form method="POST" class="action-form-inline" onsubmit="return confirm('Permanently delete this user and all their data?')">
+                <input type="hidden" name="user_id" value="<?= $u['user_id'] ?>">
+                <button type="submit" name="delete_user" class="btn-cancel btn-sm">Delete</button>
+              </form>
+              <?php endif; ?>
+            </div>
+          </td>
+        </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+  </main>
+
+  <script src="../js/footer.js"></script>
+  <script>
+    const toast = document.getElementById('toast');
+    if (toast) setTimeout(() => toast.classList.add('toast-hide'), 3500);
+  </script>
+</body>
 </html>

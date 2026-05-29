@@ -18,7 +18,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['last_name']  = $user['last_name'];
         $_SESSION['role']       = $user['role'];
 
-        header('Location: dashboard.php');
+        if ($user['role'] === 'admin') {
+            header('Location: /ITECA_SumativeAssessment/admin/admin-dashboard.php');
+        } else {
+            header('Location: dashboard.php');
+        }
         exit;
     } else {
         $error = 'Invalid email or password.';
