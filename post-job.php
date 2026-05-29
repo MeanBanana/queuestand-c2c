@@ -2,6 +2,7 @@
 require_once 'includes/auth.php';
 require_once 'includes/db.php';
 requireLogin();
+denyAdmin();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title    = trim($_POST['title']    ?? '');

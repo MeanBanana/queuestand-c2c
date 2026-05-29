@@ -2,6 +2,7 @@
 require_once 'includes/auth.php';
 require_once 'includes/db.php';
 requireLogin();
+denyAdmin();
 
 $stmt = $pdo->prepare("SELECT * FROM users WHERE user_id = ?");
 $stmt->execute([currentUser()['id']]);
