@@ -92,68 +92,97 @@ $toastMessages = [
 
     <p class="user-count"><?= count($users) ?> user<?= count($users) !== 1 ? 's' : '' ?> found</p>
 
-    <table class="admin-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Phone</th>
-          <th>Role</th>
-          <th>Verified</th>
-          <th>Jobs Posted</th>
-          <th>Jobs Stood</th>
-          <th>Joined</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php foreach ($users as $u): $isSelf = $u['user_id'] === $me; ?>
-        <tr>
-          <td><?= htmlspecialchars($u['user_id']) ?></td>
-          <td><?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name']) ?><?= $isSelf ? ' <span class="badge badge-progress">You</span>' : '' ?></td>
-          <td><?= htmlspecialchars($u['email']) ?></td>
-          <td><?= htmlspecialchars($u['phone'] ?? '—') ?></td>
-          <td><span class="badge <?= $u['role']==='admin' ? 'badge-progress' : 'badge-open' ?>"><?= ucfirst($u['role']) ?></span></td>
-          <td><?= $u['is_verified'] ? '<span class="badge badge-completed">Yes</span>' : '<span class="badge badge-cancelled">No</span>' ?></td>
-          <td><?= $u['jobs_posted'] ?></td>
-          <td><?= $u['jobs_stood'] ?></td>
-          <td><?= date('d M Y', strtotime($u['created_at'])) ?></td>
-          <td>
-            <div class="action-group">
-              <!-- Toggle verify -->
-              <form method="POST" class="action-form-inline">
-                <input type="hidden" name="user_id" value="<?= $u['user_id'] ?>">
-                <button type="submit" name="toggle_verify" class="<?= $u['is_verified'] ? 'btn-decline' : 'btn-accept' ?> btn-sm">
-                  <?= $u['is_verified'] ? 'Unverify' : 'Verify' ?>
-                </button>
-              </form>
-              <?php if (!$isSelf): ?>
-              <!-- Toggle role -->
-              <form method="POST" class="action-form-inline" onsubmit="return confirm('<?= $u['role']==='admin' ? 'Demote this admin to user?' : 'Promote this user to admin?' ?>')">
-                <input type="hidden" name="user_id" value="<?= $u['user_id'] ?>">
-                <button type="submit" name="toggle_role" class="<?= $u['role']==='admin' ? 'btn-decline' : 'btn-reviews' ?> btn-sm">
-                  <?= $u['role']==='admin' ? 'Demote' : 'Make Admin' ?>
-                </button>
-              </form>
-              <!-- Delete -->
-              <form method="POST" class="action-form-inline" onsubmit="return confirm('Permanently delete this user and all their data?')">
-                <input type="hidden" name="user_id" value="<?= $u['user_id'] ?>">
-                <button type="submit" name="delete_user" class="btn-cancel btn-sm">Delete</button>
-              </form>
-              <?php endif; ?>
-            </div>
-          </td>
-        </tr>
-        <?php endforeach; ?>
-      </tbody>
-    </table>
+    <div class="table-wrapper">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Verified</th>
+            <th>Joined</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($users as $u): $isSelf = $u['user_id'] === $me; ?>
+          <tr class="user-main-row" data-uid="<?= $u['user_id'] ?>">
+            <td>
+              <button class="btn-expand-row" onclick="toggleUserRow('<?= $u['user_id'] ?>')">▶</button>
+            </td>
+            <td>
+              <?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name']) ?>
+              <?= $isSelf ? ' <span class="badge badge-progress">You</span>' : '' ?>
+            </td>
+            <td class="col-email"><?= htmlspecialchars($u['email']) ?></td>
+            <td><span class="badge <?= $u['role']==='admin' ? 'badge-progress' : 'badge-open' ?>"><?= ucfirst($u['role']) ?></span></td>
+            <td><?= $u['is_verified'] ? '<span class="badge badge-completed">Yes</span>' : '<span class="badge badge-cancelled">No</span>' ?></td>
+            <td class="col-date"><?= date('d M Y', strtotime($u['created_at'])) ?></td>
+          </tr>
+          <tr class="user-detail-row" id="detail-<?= $u['user_id'] ?>">
+            <td colspan="6">
+              <div class="user-detail-grid">
+                <div class="user-detail-item">
+                  <span class="detail-label">ID</span>
+                  <span class="detail-value"><?= htmlspecialchars($u['user_id']) ?></span>
+                </div>
+                <div class="user-detail-item">
+                  <span class="detail-label">Phone</span>
+                  <span class="detail-value"><?= htmlspecialchars($u['phone'] ?? '—') ?></span>
+                </div>
+                <div class="user-detail-item">
+                  <span class="detail-label">City</span>
+                  <span class="detail-value"><?= htmlspecialchars($u['city'] ?? '—') ?></span>
+                </div>
+                <div class="user-detail-item">
+                  <span class="detail-label">Jobs Posted</span>
+                  <span class="detail-value"><?= $u['jobs_posted'] ?></span>
+                </div>
+                <div class="user-detail-item">
+                  <span class="detail-label">Jobs Stood</span>
+                  <span class="detail-value"><?= $u['jobs_stood'] ?></span>
+                </div>
+              </div>
+              <div class="action-group" style="margin-top:0.75rem">
+                <form method="POST" class="action-form-inline">
+                  <input type="hidden" name="user_id" value="<?= $u['user_id'] ?>">
+                  <button type="submit" name="toggle_verify" class="<?= $u['is_verified'] ? 'btn-decline' : 'btn-accept' ?> btn-sm">
+                    <?= $u['is_verified'] ? 'Unverify' : 'Verify' ?>
+                  </button>
+                </form>
+                <?php if (!$isSelf): ?>
+                <form method="POST" class="action-form-inline" onsubmit="return confirm('<?= $u['role']==='admin' ? 'Demote this admin to user?' : 'Promote this user to admin?' ?>')">
+                  <input type="hidden" name="user_id" value="<?= $u['user_id'] ?>">
+                  <button type="submit" name="toggle_role" class="<?= $u['role']==='admin' ? 'btn-decline' : 'btn-reviews' ?> btn-sm">
+                    <?= $u['role']==='admin' ? 'Demote' : 'Make Admin' ?>
+                  </button>
+                </form>
+                <form method="POST" class="action-form-inline" onsubmit="return confirm('Permanently delete this user and all their data?')">
+                  <input type="hidden" name="user_id" value="<?= $u['user_id'] ?>">
+                  <button type="submit" name="delete_user" class="btn-cancel btn-sm">Delete</button>
+                </form>
+                <?php endif; ?>
+              </div>
+            </td>
+          </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
   </main>
 
   <script src="../js/footer.js"></script>
   <script>
     const toast = document.getElementById('toast');
     if (toast) setTimeout(() => toast.classList.add('toast-hide'), 3500);
+
+    function toggleUserRow(uid) {
+      const detail = document.getElementById('detail-' + uid);
+      const btn = document.querySelector(`[data-uid="${uid}"] .btn-expand-row`);
+      const isOpen = detail.classList.toggle('open');
+      btn.textContent = isOpen ? '▼' : '▶';
+      btn.classList.toggle('expanded', isOpen);
+    }
   </script>
 </body>
 </html>

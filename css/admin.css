@@ -9,7 +9,7 @@
 .admin-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1rem;
+  margin-top: 0;
   font-size: 0.88rem;
 }
 
@@ -22,7 +22,7 @@
 }
 
 .admin-table td {
-  padding: 0.65rem 1rem;
+  padding: 0.55rem 0.6rem;
   border-bottom: 1px solid #f0f0f0;
   color: #1a1a1a;
   vertical-align: middle;
@@ -181,4 +181,94 @@
 
 .text-muted {
   color: #aaa;
+}
+
+/* Table Wrapper */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid #f0f0f0;
+}
+
+/* Expandable Row */
+.btn-expand-row {
+  background: none;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  width: 26px;
+  height: 26px;
+  font-size: 0.6rem;
+  cursor: pointer;
+  color: #4a5568;
+  transition: background 0.15s, color 0.15s, transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-expand-row:hover {
+  background: #f0f0f0;
+}
+
+.btn-expand-row.expanded {
+  background: linear-gradient(135deg, #f0932b, #e84393);
+  color: white;
+  border-color: transparent;
+}
+
+.user-detail-row {
+  display: none;
+}
+
+.user-detail-row.open {
+  display: table-row;
+}
+
+.user-detail-row td {
+  background: #fafafa;
+  padding: 1rem 1.25rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.user-detail-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
+  margin-bottom: 0.25rem;
+}
+
+.user-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 100px;
+}
+
+.detail-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #888;
+}
+
+.detail-value {
+  font-size: 0.9rem;
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+/* Truncate long email on small screens */
+@media (max-width: 768px) {
+  .col-email {
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .col-date {
+    white-space: nowrap;
+  }
 }

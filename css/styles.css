@@ -389,12 +389,6 @@ footer {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
-/* Dashboard */
-/* Dashboard and component styles moved to separate files:
-   - dashboard.css
-   - components.css
-   Import them in pages that need them */
-
 @media (max-width: 768px) {
   .stats-bar {
     grid-template-columns: 1fr;
@@ -425,10 +419,6 @@ footer {
     grid-template-columns: 1fr;
   }
 }
-
-/* Component styles moved to components.css
-   Import it in pages that need these components */
-
 
 /* Search Bar */
 .browse-header {
