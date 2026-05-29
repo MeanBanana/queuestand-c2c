@@ -1,8 +1,7 @@
 <?php
 require_once 'includes/auth.php';
 require_once 'includes/db.php';
-requireLogin();
-denyAdmin();
+guardRoute('user');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title    = trim($_POST['title']    ?? '');

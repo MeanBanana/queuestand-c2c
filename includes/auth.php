@@ -1,35 +1,73 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) session_start();
 
+define('BASE_URL', '/ITECA_SumativeAssessment');
+
 function isLoggedIn(): bool {
     return isset($_SESSION['user_id']);
 }
 
-function requireLogin(): void {
-    if (!isLoggedIn()) {
-        header('Location: /ITECA_SumativeAssessment/login.php');
-        exit;
-    }
+function isAdmin(): bool {
+    return isLoggedIn() && $_SESSION['role'] === 'admin';
 }
 
-function denyAdmin(): void {
-    if (isLoggedIn() && $_SESSION['role'] === 'admin') {
-        header('Location: /ITECA_SumativeAssessment/admin/admin-dashboard.php');
-        exit;
-    }
-}
+/**
+ * guardRoute — single entry point for all access control.
+ *
+ * Page types:
+ *   'public'  — guests only (login, register). Logged-in users are redirected to their home.
+ *   'user'    — logged-in non-admin users only.
+ *   'admin'   — logged-in admins only.
+ *   'open'    — anyone can view, but admins are redirected to admin portal.
+ */
+function guardRoute(string $pageType): void {
+    $loggedIn = isLoggedIn();
+    $role     = $_SESSION['role'] ?? '';
 
-function requireRole(string $role): void {
-    if (!isLoggedIn()) {
-        $redirect = $role === 'admin'
-            ? '/ITECA_SumativeAssessment/admin/admin-login.php'
-            : '/ITECA_SumativeAssessment/login.php';
-        header('Location: ' . $redirect);
-        exit;
-    }
-    if ($_SESSION['role'] !== $role) {
-        header('Location: /ITECA_SumativeAssessment/index.php');
-        exit;
+    switch ($pageType) {
+        case 'public':
+            // Already logged in — send to their home
+            if ($loggedIn) {
+                header('Location: ' . ($role === 'admin'
+                    ? BASE_URL . '/admin/admin-dashboard.php'
+                    : BASE_URL . '/dashboard.php'));
+                exit;
+            }
+            break;
+
+        case 'user':
+            // Must be logged in
+            if (!$loggedIn) {
+                header('Location: ' . BASE_URL . '/login.php');
+                exit;
+            }
+            // Admins have no business here
+            if ($role === 'admin') {
+                header('Location: ' . BASE_URL . '/admin/admin-dashboard.php');
+                exit;
+            }
+            break;
+
+        case 'admin':
+            // Must be logged in
+            if (!$loggedIn) {
+                header('Location: ' . BASE_URL . '/admin/admin-login.php');
+                exit;
+            }
+            // Non-admins are sent to their dashboard
+            if ($role !== 'admin') {
+                header('Location: ' . BASE_URL . '/dashboard.php');
+                exit;
+            }
+            break;
+
+        case 'open':
+            // Admins should not browse the public site and users should not browse admin site
+            if ($loggedIn && $role === 'admin') {
+                header('Location: ' . BASE_URL . '/admin/admin-dashboard.php');
+                exit;
+            }
+            break;
     }
 }
 
