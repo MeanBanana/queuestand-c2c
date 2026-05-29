@@ -5,6 +5,13 @@
   background: #005a4a;
 }
 
+.admin-brand {
+  color: #c3fcf1;
+  text-decoration: none;
+  font-size: clamp(1rem, 2vw, 1.4rem);
+  font-weight: 700;
+}
+
 /* Admin Tables */
 .admin-table {
   width: 100%;
@@ -271,5 +278,40 @@
 
   .col-date {
     white-space: nowrap;
+  }
+
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-bar input,
+  .filter-bar select,
+  .filter-bar button {
+    width: 100%;
+  }
+
+  .search-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-bar input,
+  .search-bar button {
+    width: 100%;
+  }
+
+  .action-group {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-stats-grid {
+    grid-template-columns: 1fr;
   }
 }

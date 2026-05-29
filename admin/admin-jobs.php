@@ -105,6 +105,7 @@ $toastMessages = [
 
     <p class="job-count"><?= count($jobs) ?> job<?= count($jobs) !== 1 ? 's' : '' ?> found</p>
 
+    <div class="table-wrapper">
     <table class="admin-table">
       <thead>
         <tr>
@@ -151,6 +152,7 @@ $toastMessages = [
         <?php endforeach; ?>
       </tbody>
     </table>
+    </div>
   </main>
 
   <script src="../js/footer.js"></script>
