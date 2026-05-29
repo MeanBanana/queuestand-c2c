@@ -1,7 +1,7 @@
 <?php
 require_once '../includes/auth.php';
 require_once '../includes/db.php';
-requireRole('admin');
+guardRoute('admin');
 
 $toast = '';
 

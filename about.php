@@ -1,4 +1,7 @@
-<?php require_once 'includes/auth.php'; ?>
+<?php
+require_once 'includes/auth.php';
+guardRoute('open');
+?>
 <!doctype html>
 <html lang="en">
 <head>
