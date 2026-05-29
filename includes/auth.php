@@ -13,7 +13,13 @@ function requireLogin(): void {
 }
 
 function requireRole(string $role): void {
-    requireLogin();
+    if (!isLoggedIn()) {
+        $redirect = $role === 'admin'
+            ? '/ITECA_SumativeAssessment/admin/admin-login.php'
+            : '/ITECA_SumativeAssessment/login.php';
+        header('Location: ' . $redirect);
+        exit;
+    }
     if ($_SESSION['role'] !== $role) {
         header('Location: /ITECA_SumativeAssessment/index.php');
         exit;
