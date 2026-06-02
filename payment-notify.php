@@ -1,6 +1,12 @@
 <?php
 require_once 'includes/db.php';
 
+// Whitelist PayFast IPs (sandbox + production)
+$validIps = ['197.97.145.144','41.74.179.194','196.33.227.144','196.33.227.145'];
+if (!in_array($_SERVER['REMOTE_ADDR'], $validIps, true)) {
+    http_response_code(403); exit;
+}
+
 $passphrase = '';
 
 // 1. Validate signature

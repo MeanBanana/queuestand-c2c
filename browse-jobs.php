@@ -4,6 +4,7 @@ require_once 'includes/db.php';
 guardRoute('open');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isLoggedIn() && $_SESSION['role'] === 'user') {
+    verifyCsrfToken();
     $job_id     = (int) ($_POST['job_id'] ?? 0);
     $stander_id = currentUser()['id'];
 
@@ -105,6 +106,7 @@ $toastMessages = [
           <?php if (isLoggedIn() && $_SESSION['role'] === 'user'): ?>
             <?php $alreadyApplied = in_array($job['job_id'], $appliedJobIds); ?>
             <form method="POST">
+              <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>" />
               <input type="hidden" name="job_id" value="<?= $job['job_id'] ?>" />
               <button type="submit" <?= $alreadyApplied ? 'disabled class="btn-applied"' : '' ?>>
                 <?= $alreadyApplied ? 'Applied' : 'Apply to Stand' ?>

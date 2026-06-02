@@ -8,6 +8,7 @@ $toast = '';
 
 // POST actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verifyCsrfToken();
     $uid = $_POST['user_id'] ?? '';
 
     if (isset($_POST['toggle_role']) && $uid !== $me) {
@@ -145,6 +146,7 @@ $toastMessages = [
               </div>
               <div class="action-group" style="margin-top:0.75rem">
                 <form method="POST" class="action-form-inline">
+                  <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
                   <input type="hidden" name="user_id" value="<?= $u['user_id'] ?>">
                   <button type="submit" name="toggle_verify" class="<?= $u['is_verified'] ? 'btn-decline' : 'btn-accept' ?> btn-sm">
                     <?= $u['is_verified'] ? 'Unverify' : 'Verify' ?>
@@ -152,12 +154,14 @@ $toastMessages = [
                 </form>
                 <?php if (!$isSelf): ?>
                 <form method="POST" class="action-form-inline" onsubmit="return confirm('<?= $u['role']==='admin' ? 'Demote this admin to user?' : 'Promote this user to admin?' ?>')">
+                  <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
                   <input type="hidden" name="user_id" value="<?= $u['user_id'] ?>">
                   <button type="submit" name="toggle_role" class="<?= $u['role']==='admin' ? 'btn-decline' : 'btn-reviews' ?> btn-sm">
                     <?= $u['role']==='admin' ? 'Demote' : 'Make Admin' ?>
                   </button>
                 </form>
                 <form method="POST" class="action-form-inline" onsubmit="return confirm('Permanently delete this user and all their data?')">
+                  <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
                   <input type="hidden" name="user_id" value="<?= $u['user_id'] ?>">
                   <button type="submit" name="delete_user" class="btn-cancel btn-sm">Delete</button>
                 </form>

@@ -3,17 +3,28 @@ require_once 'includes/auth.php';
 require_once 'includes/db.php';
 guardRoute('user');
 
+$error = '';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verifyCsrfToken();
     $title    = trim($_POST['title']    ?? '');
     $location = trim($_POST['location'] ?? '');
     $datetime = $_POST['required_datetime'] ?? '';
-    $pay      = $_POST['pay_amount']    ?? '';
+    $pay      = (float)($_POST['pay_amount'] ?? 0);
     $desc     = trim($_POST['description'] ?? '');
 
-    $pdo->prepare("INSERT INTO jobs (poster_id, title, description, location, required_datetime, pay_amount) VALUES (?,?,?,?,?,?)")
-        ->execute([currentUser()['id'], $title, $desc, $location, $datetime, $pay]);
-    header('Location: dashboard.php?toast=job_posted');
-    exit;
+    if ($title === '' || $location === '') {
+        $error = 'Title and location are required.';
+    } elseif ($pay < 50) {
+        $error = 'Minimum offer price is R50.';
+    } elseif (strtotime($datetime) === false || strtotime($datetime) <= time()) {
+        $error = 'Please select a future date and time.';
+    } else {
+        $pdo->prepare("INSERT INTO jobs (poster_id, title, description, location, required_datetime, pay_amount) VALUES (?,?,?,?,?,?)")
+            ->execute([currentUser()['id'], $title, $desc, $location, $datetime, $pay]);
+        header('Location: dashboard.php?toast=job_posted');
+        exit;
+    }
 }
 ?>
 <!doctype html>
@@ -31,6 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <main>
     <h1>Post a Queue Job</h1>
     <form method="POST">
+      <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>" />
+      <?php if (!empty($error)): ?>
+        <p class="msg-error"><?= htmlspecialchars($error) ?></p>
+      <?php endif; ?>
       <div>
         <label>Queue Location / Service</label>
         <input type="text" name="title" placeholder="e.g. Home Affairs Johannesburg" required />

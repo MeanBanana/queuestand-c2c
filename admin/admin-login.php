@@ -1,11 +1,25 @@
 <?php
 require_once '../includes/auth.php';
 require_once '../includes/db.php';
-guardRoute('admin');
+
+// Redirect already-logged-in admins
+if (isAdmin()) {
+    header('Location: admin-dashboard.php');
+    exit;
+}
 
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verifyCsrfToken();
+
+    $ip  = $_SERVER['REMOTE_ADDR'];
+    $key = 'admin_attempts_' . md5($ip);
+    if (!isset($_SESSION[$key])) $_SESSION[$key] = ['count' => 0, 'since' => time()];
+    if (time() - $_SESSION[$key]['since'] > 900) $_SESSION[$key] = ['count' => 0, 'since' => time()];
+    if ($_SESSION[$key]['count'] >= 5) {
+        $error = 'Too many attempts. Please try again later.';
+    } else {
     $email    = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
 
@@ -14,6 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user = $stmt->fetch();
 
     if ($user && password_verify($password, $user['password'])) {
+        $_SESSION[$key]['count'] = 0;
+        session_regenerate_id(true);
         $_SESSION['user_id']    = $user['user_id'];
         $_SESSION['first_name'] = $user['first_name'];
         $_SESSION['last_name']  = $user['last_name'];
@@ -22,7 +38,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    $_SESSION[$key]['count']++;
     $error = 'Invalid admin credentials.';
+    }
 }
 ?>
 <!doctype html>
@@ -43,6 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <p class="msg-error"><?= htmlspecialchars($error) ?></p>
     <?php endif; ?>
     <form method="POST">
+      <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>" />
       <div>
         <label for="email">Email</label>
         <input type="email" id="email" name="email" required />

@@ -23,9 +23,9 @@ if (!$job) {
     exit;
 }
 
-$merchant_id  = '10048867';
-$merchant_key = 'd8ppo20k59w3c';
-$passphrase   = '';
+$merchant_id  = getenv('PAYFAST_MERCHANT_ID')  ?: '10048867';
+$merchant_key = getenv('PAYFAST_MERCHANT_KEY') ?: 'd8ppo20k59w3c';
+$passphrase   = getenv('PAYFAST_PASSPHRASE')   ?: '';
 $base_url     = 'https://tapestry-broiler-deeply.ngrok-free.dev/ITECA_SumativeAssessment';
 
 $data = [

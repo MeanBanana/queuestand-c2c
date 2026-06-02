@@ -1,5 +1,19 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path'     => '/',
+        'secure'   => false, // set true in production (HTTPS)
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+    session_start();
+}
+
+// Security headers
+header('X-Frame-Options: DENY');
+header('X-Content-Type-Options: nosniff');
+header('Referrer-Policy: strict-origin-when-cross-origin');
 
 define('BASE_URL', '/ITECA_SumativeAssessment');
 
@@ -68,6 +82,21 @@ function guardRoute(string $pageType): void {
                 exit;
             }
             break;
+    }
+}
+
+function generateCsrfToken(): string {
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+function verifyCsrfToken(): void {
+    $token = $_POST['csrf_token'] ?? '';
+    if (!hash_equals($_SESSION['csrf_token'] ?? '', $token)) {
+        http_response_code(403);
+        exit('Invalid CSRF token.');
     }
 }
 
