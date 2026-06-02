@@ -6,6 +6,7 @@ guardRoute('public');
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verifyCsrfToken();
     $first_name = trim($_POST['first_name'] ?? '');
     $last_name  = trim($_POST['last_name']  ?? '');
     $email      = trim($_POST['email']      ?? '');
@@ -16,8 +17,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($password !== $confirm) {
         $error = 'Passwords do not match.';
+    } elseif (strlen($password) < 8) {
+        $error = 'Password must be at least 8 characters.';
     } elseif (!preg_match('/^\d{13}$/', $user_id)) {
         $error = 'ID number must be 13 digits.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = 'Invalid email address.';
+    } elseif ($phone !== '' && !preg_match('/^0\d{9}$/', $phone)) {
+        $error = 'Phone must be a valid 10-digit SA number.';
     } else {
         $check = $pdo->prepare("SELECT user_id FROM users WHERE email = ? OR user_id = ?");
         $check->execute([$email, $user_id]);
@@ -50,6 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <p class="msg-error"><?= htmlspecialchars($error) ?></p>
     <?php endif; ?>
     <form method="POST">
+      <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>" />
       <div>
         <label>SA ID Number</label>
         <input type="text" name="user_id" placeholder="13-digit ID number" maxlength="13" required />

@@ -10,18 +10,25 @@ $user = $stmt->fetch();
 $success = $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verifyCsrfToken();
     $first_name = trim($_POST['first_name'] ?? '');
     $last_name  = trim($_POST['last_name']  ?? '');
     $phone      = trim($_POST['phone']      ?? '');
     $city       = trim($_POST['city']       ?? '');
 
-    $upd = $pdo->prepare("UPDATE users SET first_name=?, last_name=?, phone=?, city=? WHERE user_id=?");
-    $upd->execute([$first_name, $last_name, $phone, $city, $user['user_id']]);
+    if ($first_name === '' || $last_name === '') {
+        $error = 'First and last name are required.';
+    } elseif ($phone !== '' && !preg_match('/^0\d{9}$/', $phone)) {
+        $error = 'Phone must be a valid 10-digit SA number.';
+    } else {
+        $upd = $pdo->prepare("UPDATE users SET first_name=?, last_name=?, phone=?, city=? WHERE user_id=?");
+        $upd->execute([$first_name, $last_name, $phone, $city, $user['user_id']]);
 
-    $_SESSION['first_name'] = $first_name;
-    $_SESSION['last_name']  = $last_name;
-    $success = 'Profile updated.';
-    $user = array_merge($user, compact('first_name', 'last_name', 'phone', 'city'));
+        $_SESSION['first_name'] = $first_name;
+        $_SESSION['last_name']  = $last_name;
+        $success = 'Profile updated.';
+        $user = array_merge($user, compact('first_name', 'last_name', 'phone', 'city'));
+    }
 }
 ?>
 <!doctype html>
@@ -41,6 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <?php if ($success): ?><p class="msg-success"><?= htmlspecialchars($success) ?></p><?php endif; ?>
 
       <form method="POST">
+        <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>" />
+        <?php if ($error): ?><p class="msg-error"><?= htmlspecialchars($error) ?></p><?php endif; ?>
         <div>
           <label>First Name</label>
           <input type="text" name="first_name" value="<?= htmlspecialchars($user['first_name']) ?>" required />

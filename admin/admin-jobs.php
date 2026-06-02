@@ -6,6 +6,7 @@ guardRoute('admin');
 $toast = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verifyCsrfToken();
     $jid = (int)($_POST['job_id'] ?? 0);
 
     if (isset($_POST['set_status']) && $jid) {
@@ -134,6 +135,7 @@ $toastMessages = [
           <td>
             <div class="action-group">
               <form method="POST" class="action-form">
+                <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
                 <input type="hidden" name="job_id" value="<?= $j['job_id'] ?>">
                 <select name="status" class="status-select">
                   <?php foreach ($statuses as $s): ?>
@@ -143,6 +145,7 @@ $toastMessages = [
                 <button type="submit" name="set_status" class="btn-accept btn-sm">Update</button>
               </form>
               <form method="POST" class="action-form-inline" onsubmit="return confirm('Delete this job and all related data?')">
+                <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
                 <input type="hidden" name="job_id" value="<?= $j['job_id'] ?>">
                 <button type="submit" name="delete_job" class="btn-cancel btn-sm">Delete</button>
               </form>

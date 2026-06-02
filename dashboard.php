@@ -4,15 +4,16 @@ require_once 'includes/db.php';
 guardRoute('user');
 
 $user = currentUser();
-$isPoster = $user['role'] === 'job_poster';
+$isPoster = $user['role'] === 'user';
 
 // ── POST ACTIONS ──────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  verifyCsrfToken();
   $jid = (int) ($_POST['job_id'] ?? 0);
 
   // POSTER: Accept applicant
   if (isset($_POST['accept_applicant']) && $isPoster) {
-    $sid = $_POST['stander_id'];
+    $sid = (int) $_POST['stander_id'];
     $pdo->prepare("UPDATE jobs SET status='assigned', assigned_stander_id=? WHERE job_id=? AND poster_id=?")
       ->execute([$sid, $jid, $user['id']]);
     // Mark this application accepted, decline all others
@@ -39,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   // POSTER: Decline a single applicant
   if (isset($_POST['decline_applicant']) && $isPoster) {
-    $sid = $_POST['stander_id'];
+    $sid = (int) $_POST['stander_id'];
     $pdo->prepare("UPDATE job_applications SET status='declined' WHERE job_id=? AND stander_id=?")
       ->execute([$jid, $sid]);
     $jobTitle = $pdo->prepare("SELECT title FROM jobs WHERE job_id=?");
@@ -95,6 +96,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // MARK NOTIFICATIONS READ 
 if (isset($_GET['mark_read'])) {
+  $token = $_GET['csrf_token'] ?? '';
+  if (!hash_equals($_SESSION['csrf_token'] ?? '', $token)) {
+      http_response_code(403); exit('Invalid CSRF token.');
+  }
   $pdo->prepare("UPDATE notifications SET is_read=1 WHERE user_id=?")->execute([$user['id']]);
   header('Location: dashboard.php');
   exit;
@@ -232,7 +237,7 @@ $toastMessages = [
             </div>
           <?php endforeach; ?>
           <?php if ($unreadCount > 0): ?>
-            <a href="dashboard.php?mark_read=1" class="btn-mark-read">Mark all as read</a>
+            <a href="dashboard.php?mark_read=1&csrf_token=<?= generateCsrfToken() ?>" class="btn-mark-read">Mark all as read</a>
           <?php endif; ?>
         <?php endif; ?>
       </div>
@@ -367,11 +372,13 @@ $toastMessages = [
                             Reviews
                           </button>
                           <form method="POST" style="display:inline">
+                            <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
                             <input type="hidden" name="job_id" value="<?= $job['job_id'] ?>">
                             <input type="hidden" name="stander_id" value="<?= $app['stander_id'] ?>">
                             <button type="submit" name="accept_applicant" class="btn-accept">✓ Accept</button>
                           </form>
                           <form method="POST" style="display:inline">
+                            <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
                             <input type="hidden" name="job_id" value="<?= $job['job_id'] ?>">
                             <input type="hidden" name="stander_id" value="<?= $app['stander_id'] ?>">
                             <button type="submit" name="decline_applicant" class="btn-decline"
@@ -397,6 +404,7 @@ $toastMessages = [
                 ?>
                 <?php if (isset($nextStatus[$job['status']])): ?>
                   <form method="POST" style="margin-top:0.75rem">
+                    <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
                     <input type="hidden" name="job_id" value="<?= $job['job_id'] ?>">
                     <input type="hidden" name="current_status" value="<?= $job['status'] ?>">
                     <button type="submit" name="advance_status" class="btn-advance">
@@ -408,6 +416,7 @@ $toastMessages = [
                 <!-- CANCEL -->
                 <?php if ($canCancel): ?>
                   <form method="POST" onsubmit="return confirm('Cancel this job? The stander will be notified.')">
+                    <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
                     <input type="hidden" name="job_id" value="<?= $job['job_id'] ?>">
                     <button type="submit" name="cancel_job" class="btn-cancel">Cancel Job</button>
                   </form>
