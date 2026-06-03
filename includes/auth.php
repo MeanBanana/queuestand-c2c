@@ -10,12 +10,13 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+require_once __DIR__ . '/config.php';
+
 // Security headers
 header('X-Frame-Options: DENY');
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: strict-origin-when-cross-origin');
 
-define('BASE_URL', 'https://queue-stand.infinityfree.me');
 
 function isLoggedIn(): bool {
     return isset($_SESSION['user_id']);

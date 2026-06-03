@@ -74,6 +74,33 @@ CREATE TABLE transactions (
 );
 ```
 
+### Job Applications
+```sql
+CREATE TABLE job_applications (
+    application_id INT AUTO_INCREMENT PRIMARY KEY,
+    job_id INT NOT NULL,
+    stander_id VARCHAR(13) NOT NULL,
+    status ENUM('pending','accepted','declined') DEFAULT 'pending',
+    applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (job_id) REFERENCES jobs(job_id) ON DELETE CASCADE,
+    FOREIGN KEY (stander_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+```
+
+### Notifications
+```sql
+CREATE TABLE notifications (
+    notification_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id VARCHAR(13) NOT NULL,
+    message TEXT NOT NULL,
+    is_read TINYINT(1) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+```
+
 ---
 
 ## Roles
@@ -95,6 +122,7 @@ CREATE TABLE transactions (
 | `/post-job.php`             | Logged in     |
 | `/browse-jobs.php`          | Logged in     |
 | `/profile.php`              | Logged in     |
+| `/submit-review.php`        | Logged in     |
 | `/admin/admin-dashboard.php`| Admin only    |
 | `/admin/admin-users.php`    | Admin only    |
 | `/admin/admin-jobs.php`     | Admin only    |

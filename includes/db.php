@@ -1,10 +1,7 @@
 <?php
-$host = 'sql208.infinityfree.com'; // your InfinityFree DB host
-$db   = 'if0_42081203_queue_stand'; // your InfinityFree DB name
-$user = 'if0_42081203';              // your InfinityFree DB username
-$pass = 'Ehvgta5k';          // your InfinityFree DB password
+require_once __DIR__ . '/config.php';
 
-$pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8mb4", $user, $pass, [
+$pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4", DB_USER, DB_PASS, [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     PDO::ATTR_EMULATE_PREPARES   => false,
