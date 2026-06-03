@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
       <div><button type="submit">Login</button></div>
     </form>
-    <p class="auth-link"><a href="/ITECA_SumativeAssessment/login.php">← User Login</a></p>
+    <p class="auth-link"><a href="<?= BASE_URL ?>/login.php">← User Login</a></p>
   </main>
 
   <script src="../js/footer.js"></script>

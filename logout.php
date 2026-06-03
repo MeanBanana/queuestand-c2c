@@ -7,5 +7,5 @@ if (ini_get('session.use_cookies')) {
         $p['path'], $p['domain'], $p['secure'], $p['httponly']);
 }
 session_destroy();
-header('Location: /ITECA_SumativeAssessment/index.php');
+header('Location: ' . BASE_URL . '/index.php');
 exit;

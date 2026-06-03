@@ -32,8 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['role']       = $user['role'];
 
         header('Location: ' . ($user['role'] === 'admin'
-            ? '/ITECA_SumativeAssessment/admin/admin-dashboard.php'
-            : 'dashboard.php'));
+            ? BASE_URL . '/admin/admin-dashboard.php'
+            : BASE_URL . '/dashboard.php'));
         exit;
     }
 
