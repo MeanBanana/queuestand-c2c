@@ -1,6 +1,6 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) session_start();
-if (!defined('BASE_URL')) define('BASE_URL', '');
+if (!defined('BASE_URL')) define('BASE_URL', 'https://queue-stand.infinityfree.me');
 ?>
 <header class="admin-nav">
   <div>
