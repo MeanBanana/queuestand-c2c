@@ -1,8 +1,4 @@
-<?php
-if (session_status() === PHP_SESSION_NONE) session_start();
-define('BASE_URL', 'https://queue-stand.infinityfree.me');
-if (!defined('BASE_URL')) define('BASE_URL', '');
-?>
+<?php if (session_status() === PHP_SESSION_NONE) session_start(); ?>
 <header>
   <div>
     <h1><a href="<?= BASE_URL ?>/index.php"><img src="<?= BASE_URL ?>/assets/Logo.png" alt="QueueStand"></a></h1>

@@ -1,7 +1,4 @@
-<?php
-if (session_status() === PHP_SESSION_NONE) session_start();
-if (!defined('BASE_URL')) define('BASE_URL', 'https://queue-stand.infinityfree.me');
-?>
+<?php if (session_status() === PHP_SESSION_NONE) session_start(); ?>
 <header class="admin-nav">
   <div>
     <h1><a href="<?= BASE_URL ?>/admin/admin-dashboard.php" class="admin-brand">⚙ QueueStand Admin</a></h1>
