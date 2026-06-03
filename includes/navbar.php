@@ -1,5 +1,6 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) session_start();
+define('BASE_URL', 'https://queue-stand.infinityfree.me');
 if (!defined('BASE_URL')) define('BASE_URL', '');
 ?>
 <header>
