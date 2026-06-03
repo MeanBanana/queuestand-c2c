@@ -7,6 +7,21 @@ $stmt = $pdo->prepare("SELECT * FROM users WHERE user_id = ?");
 $stmt->execute([currentUser()['id']]);
 $user = $stmt->fetch();
 
+// Fetch this user's reviews as a stander
+$revStmt = $pdo->prepare("
+    SELECT r.rating, r.comment, r.created_at,
+           CONCAT(u.first_name, ' ', u.last_name) AS rater_name
+    FROM reviews r
+    JOIN users u ON r.rater_id = u.user_id
+    WHERE r.rated_id = ?
+    ORDER BY r.created_at DESC
+");
+$revStmt->execute([$user['user_id']]);
+$myReviews = $revStmt->fetchAll();
+$avgRating = count($myReviews)
+    ? round(array_sum(array_column($myReviews, 'rating')) / count($myReviews), 1)
+    : null;
+
 $success = $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -77,6 +92,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div><button type="submit">Save Changes</button></div>
       </form>
       <p><a href="logout.php">Logout</a></p>
+
+      <?php if (!empty($myReviews)): ?>
+        <div class="profile-reviews">
+          <h3>My Reviews as a Stander
+            <span class="avg-rating-badge">
+              <?= str_repeat('★', (int)round($avgRating)) ?><?= str_repeat('☆', 5 - (int)round($avgRating)) ?>
+              <?= $avgRating ?>/5 (<?= count($myReviews) ?> review<?= count($myReviews) !== 1 ? 's' : '' ?>)
+            </span>
+          </h3>
+          <?php foreach ($myReviews as $rev): ?>
+            <div class="review-item">
+              <div class="review-stars">
+                <?= str_repeat('★', $rev['rating']) ?><?= str_repeat('☆', 5 - $rev['rating']) ?>
+              </div>
+              <p class="review-comment"><?= $rev['comment'] ? htmlspecialchars($rev['comment']) : '<em>No comment</em>' ?></p>
+              <p class="review-meta">— <?= htmlspecialchars($rev['rater_name']) ?> · <?= date('d M Y', strtotime($rev['created_at'])) ?></p>
+            </div>
+          <?php endforeach; ?>
+        </div>
+      <?php elseif ($user['role'] === 'user'): ?>
+        <p style="margin-top:1.5rem;color:#888">No reviews yet as a stander.</p>
+      <?php endif; ?>
     </main>
 
     <script src="js/footer.js"></script>

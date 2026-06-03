@@ -155,6 +155,14 @@ if ($isPoster) {
   }
 }
 
+// Fetch jobs the poster has already reviewed
+$reviewedJobIds = [];
+if ($isPoster) {
+  $revStmt = $pdo->prepare("SELECT job_id FROM reviews WHERE rater_id=?");
+  $revStmt->execute([$user['id']]);
+  $reviewedJobIds = array_column($revStmt->fetchAll(), 'job_id');
+}
+
 // Fetch unread notifications
 $notifStmt = $pdo->prepare("SELECT * FROM notifications WHERE user_id=? ORDER BY created_at DESC LIMIT 20");
 $notifStmt->execute([$user['id']]);
@@ -182,11 +190,14 @@ $appStatusLabels = [
 ];
 
 $toastMessages = [
-  'job_posted' => ['msg' => 'Job posted successfully!', 'type' => 'toast-success'],
-  'job_cancelled' => ['msg' => 'Job cancelled.', 'type' => 'toast-warning'],
-  'accepted' => ['msg' => 'Stander accepted! They\'ve been notified.', 'type' => 'toast-success'],
-  'declined' => ['msg' => 'Applicant declined.', 'type' => 'toast-warning'],
-  'status_updated' => ['msg' => 'Job status updated.', 'type' => 'toast-success'],
+  'job_posted'       => ['msg' => 'Job posted successfully!', 'type' => 'toast-success'],
+  'job_cancelled'    => ['msg' => 'Job cancelled.', 'type' => 'toast-warning'],
+  'accepted'         => ['msg' => 'Stander accepted! They\'ve been notified.', 'type' => 'toast-success'],
+  'declined'         => ['msg' => 'Applicant declined.', 'type' => 'toast-warning'],
+  'status_updated'   => ['msg' => 'Job status updated.', 'type' => 'toast-success'],
+  'review_submitted' => ['msg' => 'Review submitted! Thank you.', 'type' => 'toast-success'],
+  'review_exists'    => ['msg' => 'You already reviewed this job.', 'type' => 'toast-warning'],
+  'review_invalid'   => ['msg' => 'Invalid review submission.', 'type' => 'toast-warning'],
 ];
 ?>
 <!doctype html>
@@ -209,6 +220,27 @@ $toastMessages = [
       <?= $toastMessages[$toast]['msg'] ?>
     </div>
   <?php endif; ?>
+
+  <!-- Leave-a-Review Modal -->
+  <div id="review-form-modal" class="modal-overlay" style="display:none">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal('review-form-modal')">✕</button>
+      <h3 id="review-form-title">Leave a Review</h3>
+      <form method="POST" action="submit-review.php">
+        <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
+        <input type="hidden" name="job_id" id="review-job-id">
+        <div class="star-rating" id="star-rating">
+          <?php for ($i = 1; $i <= 5; $i++): ?>
+            <button type="button" class="star" data-value="<?= $i ?>">★</button>
+          <?php endfor; ?>
+        </div>
+        <input type="hidden" name="rating" id="review-rating" value="0">
+        <p id="star-error" class="msg-error" style="display:none">Please select a rating.</p>
+        <textarea name="comment" id="review-comment" placeholder="Share your experience (optional)…" rows="4"></textarea>
+        <button type="submit" class="btn-primary" style="width:100%;margin-top:1rem" onclick="return validateStars()">Submit Review</button>
+      </form>
+    </div>
+  </div>
 
   <!-- Reviews Modal -->
   <div id="reviews-modal" class="modal-overlay" style="display:none">
@@ -346,6 +378,14 @@ $toastMessages = [
                       onclick="loadReviews(<?= $job['assigned_stander_id'] ?>, '<?= htmlspecialchars(addslashes($job['s_first'] . ' ' . $job['s_last'])) ?>')">
                       Read Reviews
                     </button>
+                    <?php if ($job['status'] === 'completed' && !in_array($job['job_id'], $reviewedJobIds)): ?>
+                      <button class="btn-leave-review"
+                        onclick="openReviewForm(<?= $job['job_id'] ?>, '<?= htmlspecialchars(addslashes($job['s_first'] . ' ' . $job['s_last'])) ?>')">
+                        Leave a Review
+                      </button>
+                    <?php elseif ($job['status'] === 'completed' && in_array($job['job_id'], $reviewedJobIds)): ?>
+                      <span class="reviewed-badge">✓ Reviewed</span>
+                    <?php endif; ?>
                   </div>
                 <?php endif; ?>
 
@@ -448,6 +488,43 @@ $toastMessages = [
     document.querySelectorAll('.modal-overlay').forEach(el => {
       el.addEventListener('click', e => { if (e.target === el) el.style.display = 'none'; });
     });
+
+    function openReviewForm(jobId, standerName) {
+      document.getElementById('review-job-id').value = jobId;
+      document.getElementById('review-form-title').textContent = 'Review for ' + standerName;
+      document.getElementById('review-rating').value = 0;
+      document.getElementById('review-comment').value = '';
+      document.getElementById('star-error').style.display = 'none';
+      document.querySelectorAll('#star-rating .star').forEach(s => s.classList.remove('active'));
+      openModal('review-form-modal');
+    }
+
+    (function initStars() {
+      const stars = document.querySelectorAll('#star-rating .star');
+      stars.forEach(star => {
+        star.addEventListener('click', () => {
+          const val = +star.dataset.value;
+          document.getElementById('review-rating').value = val;
+          stars.forEach(s => s.classList.toggle('active', +s.dataset.value <= val));
+          document.getElementById('star-error').style.display = 'none';
+        });
+        star.addEventListener('mouseenter', () => {
+          const val = +star.dataset.value;
+          stars.forEach(s => s.classList.toggle('hover', +s.dataset.value <= val));
+        });
+        star.addEventListener('mouseleave', () => {
+          stars.forEach(s => s.classList.remove('hover'));
+        });
+      });
+    })();
+
+    function validateStars() {
+      if (+document.getElementById('review-rating').value < 1) {
+        document.getElementById('star-error').style.display = 'block';
+        return false;
+      }
+      return true;
+    }
 
     function loadReviews(standerId, name) {
       document.getElementById('modal-title').textContent = name + ' — Reviews';
