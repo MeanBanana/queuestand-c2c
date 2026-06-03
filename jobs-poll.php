@@ -5,11 +5,17 @@ guardRoute('user');
 
 header('Content-Type: application/json');
 
-$user     = currentUser();
-$isPoster = $user['role'] === 'job_poster';
+$user = currentUser();
+$mode = $_GET['mode'] ?? 'poster';
 
-if ($isPoster) {
-    // Return pending applicant counts per job + job statuses
+if ($mode === 'stander') {
+    $stmt = $pdo->prepare("
+        SELECT ja.job_id, ja.status AS app_status, j.status AS job_status
+        FROM job_applications ja
+        JOIN jobs j ON ja.job_id = j.job_id
+        WHERE ja.stander_id = ?
+    ");
+} else {
     $stmt = $pdo->prepare("
         SELECT j.job_id, j.status,
                COUNT(ja.application_id) AS pending_count
@@ -17,14 +23,6 @@ if ($isPoster) {
         LEFT JOIN job_applications ja ON ja.job_id = j.job_id AND ja.status = 'pending'
         WHERE j.poster_id = ?
         GROUP BY j.job_id
-    ");
-} else {
-    // Return application statuses for this stander
-    $stmt = $pdo->prepare("
-        SELECT ja.job_id, ja.status AS app_status, j.status AS job_status
-        FROM job_applications ja
-        JOIN jobs j ON ja.job_id = j.job_id
-        WHERE ja.stander_id = ?
     ");
 }
 

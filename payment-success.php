@@ -4,6 +4,21 @@ require_once 'includes/db.php';
 guardRoute('user');
 
 $job_id = (int) ($_GET['job_id'] ?? 0);
+if ($job_id) {
+    // Ensure job is moved to in_progress (fallback in case IPN hasn't fired yet)
+    $pdo->prepare("UPDATE jobs SET status = 'in_progress' WHERE job_id = ? AND status = 'assigned'")
+        ->execute([$job_id]);
+    // Insert transaction if not already recorded
+    $exists = $pdo->prepare("SELECT 1 FROM transactions WHERE job_id = ? AND status = 'paid'");
+    $exists->execute([$job_id]);
+    if (!$exists->fetch()) {
+        $amount = $pdo->prepare("SELECT pay_amount FROM jobs WHERE job_id = ?");
+        $amount->execute([$job_id]);
+        $pay = $amount->fetchColumn();
+        $pdo->prepare("INSERT INTO transactions (job_id, amount, status, payment_gateway) VALUES (?, ?, 'paid', 'PayFast')")
+            ->execute([$job_id, $pay]);
+    }
+}
 ?>
 <!doctype html>
 <html lang="en">

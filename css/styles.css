@@ -548,6 +548,24 @@ footer {
   margin-top: 1rem;
 }
 
+/* Navbar notification bell link */
+.nav-notif-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: clamp(0.6rem, 1.2vw, 0.85rem) clamp(1rem, 2vw, 1.5rem) !important;
+  font-size: 1.1rem;
+  line-height: 1;
+  background: none !important;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-notif-link .notif-badge {
+  top: 6px;
+  right: 6px;
+}
+
 /* Mobile */
 @media (max-width: 768px) {
   main {

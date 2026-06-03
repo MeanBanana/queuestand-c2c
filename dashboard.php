@@ -539,7 +539,7 @@ $toastMessages = [
     }
 
     function pollJobs() {
-      fetch('jobs-poll.php')
+      fetch('jobs-poll.php?mode=' + (isPoster ? 'poster' : 'stander'))
         .then(r => r.json())
         .then(data => {
           data.forEach(row => {

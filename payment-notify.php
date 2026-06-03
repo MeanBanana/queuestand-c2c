@@ -43,15 +43,21 @@ try {
     $pdo->prepare("INSERT INTO transactions (job_id, amount, status, payment_gateway, gateway_tx_id) VALUES (?, ?, 'paid', 'PayFast', ?)")
         ->execute([$job_id, $amount, $gateway_tx]);
 
-    $pdo->prepare("UPDATE jobs SET status = 'in_progress' WHERE job_id = ?")
+    $pdo->prepare("UPDATE jobs SET status = 'in_progress' WHERE job_id = ? AND status = 'assigned'")
         ->execute([$job_id]);
 
-    $stander = $pdo->prepare("SELECT assigned_stander_id, title FROM jobs WHERE job_id = ?");
-    $stander->execute([$job_id]);
-    $job = $stander->fetch();
-    if ($job && $job['assigned_stander_id']) {
-        $pdo->prepare("INSERT INTO notifications (user_id, message) VALUES (?, ?)")
-            ->execute([$job['assigned_stander_id'], "Payment received for job '{$job['title']}'. The job is now in progress."]);
+    $jobRow = $pdo->prepare("SELECT assigned_stander_id, poster_id, title FROM jobs WHERE job_id = ?");
+    $jobRow->execute([$job_id]);
+    $job = $jobRow->fetch();
+    if ($job) {
+        if ($job['assigned_stander_id']) {
+            $pdo->prepare("INSERT INTO notifications (user_id, message) VALUES (?, ?)")
+                ->execute([$job['assigned_stander_id'], "Payment received for job '{$job['title']}'. The job is now in progress."]);
+        }
+        if ($job['poster_id']) {
+            $pdo->prepare("INSERT INTO notifications (user_id, message) VALUES (?, ?)")
+                ->execute([$job['poster_id'], "Payment confirmed for job '{$job['title']}'. Job is now in progress."]);
+        }
     }
 } catch (Exception $e) {
     http_response_code(500); exit;

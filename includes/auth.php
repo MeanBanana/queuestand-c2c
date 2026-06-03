@@ -15,7 +15,7 @@ header('X-Frame-Options: DENY');
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: strict-origin-when-cross-origin');
 
-define('BASE_URL', '/ITECA_SumativeAssessment');
+define('BASE_URL', 'https://queue-stand.infinityfree.me/');
 
 function isLoggedIn(): bool {
     return isset($_SESSION['user_id']);
