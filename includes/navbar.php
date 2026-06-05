@@ -2,7 +2,6 @@
 <header>
   <div>
     <h1><a href="<?= BASE_URL ?>/index.php"><img src="<?= BASE_URL ?>/assets/Logo.png" alt="QueueStand"></a></h1>
-    <div class="nav-right">
     <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" onclick="toggleNav(this)">
       <span class="nav-toggle-icon">&#9776;</span>
       <span class="nav-toggle-label">Menu</span>
