@@ -33,7 +33,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $pdo->prepare("INSERT INTO users (user_id, email, password, first_name, last_name, phone, role) VALUES (?,?,?,?,?,?,?)")
                 ->execute([$user_id, $email, password_hash($password, PASSWORD_DEFAULT), $first_name, $last_name, $phone, 'user']);
-            header('Location: login.php');
+            session_regenerate_id(true);
+            $_SESSION['user_id']    = $user_id;
+            $_SESSION['first_name'] = $first_name;
+            $_SESSION['last_name']  = $last_name;
+            $_SESSION['role']       = 'user';
+            header('Location: ' . BASE_URL . '/dashboard.php?toast=welcome');
             exit;
         }
     }

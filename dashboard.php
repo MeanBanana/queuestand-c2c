@@ -4,30 +4,26 @@ require_once 'includes/db.php';
 guardRoute('user');
 
 $user = currentUser();
-$isPoster = $user['role'] === 'user';
 
 // ── POST ACTIONS ──────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   verifyCsrfToken();
   $jid = (int) ($_POST['job_id'] ?? 0);
 
-  // POSTER: Accept applicant
-  if (isset($_POST['accept_applicant']) && $isPoster) {
-    $sid = (int) $_POST['stander_id'];
+  // Accept applicant
+  if (isset($_POST['accept_applicant'])) {
+    $sid = $_POST['stander_id'];
     $pdo->prepare("UPDATE jobs SET status='assigned', assigned_stander_id=? WHERE job_id=? AND poster_id=?")
       ->execute([$sid, $jid, $user['id']]);
-    // Mark this application accepted, decline all others
     $pdo->prepare("UPDATE job_applications SET status='accepted' WHERE job_id=? AND stander_id=?")
       ->execute([$jid, $sid]);
     $pdo->prepare("UPDATE job_applications SET status='declined' WHERE job_id=? AND stander_id!=?")
       ->execute([$jid, $sid]);
-    // Notify accepted stander
     $jobTitle = $pdo->prepare("SELECT title FROM jobs WHERE job_id=?");
     $jobTitle->execute([$jid]);
     $title = $jobTitle->fetchColumn();
     $pdo->prepare("INSERT INTO notifications (user_id, message) VALUES (?,?)")
       ->execute([$sid, "Your application for \"{$title}\" was accepted! Get ready to stand."]);
-    // Notify declined standers
     $declined = $pdo->prepare("SELECT stander_id FROM job_applications WHERE job_id=? AND stander_id!=?");
     $declined->execute([$jid, $sid]);
     foreach ($declined->fetchAll() as $row) {
@@ -38,9 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
   }
 
-  // POSTER: Decline a single applicant
-  if (isset($_POST['decline_applicant']) && $isPoster) {
-    $sid = (int) $_POST['stander_id'];
+  // Decline a single applicant
+  if (isset($_POST['decline_applicant'])) {
+    $sid = $_POST['stander_id'];
     $pdo->prepare("UPDATE job_applications SET status='declined' WHERE job_id=? AND stander_id=?")
       ->execute([$jid, $sid]);
     $jobTitle = $pdo->prepare("SELECT title FROM jobs WHERE job_id=?");
@@ -52,21 +48,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
   }
 
-  // POSTER: Advance job status
-  if (isset($_POST['advance_status']) && $isPoster) {
+  // Advance job status
+  if (isset($_POST['advance_status'])) {
     $transitions = ['assigned' => 'in_progress', 'in_progress' => 'completed'];
     $current = $_POST['current_status'] ?? '';
     if (isset($transitions[$current])) {
       $next = $transitions[$current];
       $pdo->prepare("UPDATE jobs SET status=? WHERE job_id=? AND poster_id=?")
         ->execute([$next, $jid, $user['id']]);
-      // Notify stander of status change
       $row = $pdo->prepare("SELECT assigned_stander_id, title FROM jobs WHERE job_id=?");
       $row->execute([$jid]);
       $jobRow = $row->fetch();
       $msgs = [
         'in_progress' => "The poster has marked your job \"{$jobRow['title']}\" as In Progress.",
-        'completed' => "Your job \"{$jobRow['title']}\" has been marked as Completed. Payment will follow.",
+        'completed'   => "Your job \"{$jobRow['title']}\" has been marked as Completed.",
       ];
       if ($jobRow['assigned_stander_id']) {
         $pdo->prepare("INSERT INTO notifications (user_id, message) VALUES (?,?)")
@@ -77,11 +72,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
   }
 
-  // POSTER: Cancel job
-  if (isset($_POST['cancel_job']) && $isPoster) {
+  // Cancel job
+  if (isset($_POST['cancel_job'])) {
     $pdo->prepare("UPDATE jobs SET status='cancelled' WHERE job_id=? AND poster_id=? AND status IN ('open','assigned')")
       ->execute([$jid, $user['id']]);
-    // Notify assigned stander if any
     $row = $pdo->prepare("SELECT assigned_stander_id, title FROM jobs WHERE job_id=?");
     $row->execute([$jid]);
     $jobRow = $row->fetch();
@@ -94,12 +88,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 
-// MARK NOTIFICATIONS READ 
-if (isset($_GET['mark_read'])) {
-  $token = $_GET['csrf_token'] ?? '';
-  if (!hash_equals($_SESSION['csrf_token'] ?? '', $token)) {
-      http_response_code(403); exit('Invalid CSRF token.');
-  }
+// MARK NOTIFICATIONS READ
+if (isset($_POST['mark_read'])) {
+  verifyCsrfToken();
   $pdo->prepare("UPDATE notifications SET is_read=1 WHERE user_id=?")->execute([$user['id']]);
   header('Location: dashboard.php');
   exit;
@@ -107,90 +98,92 @@ if (isset($_GET['mark_read'])) {
 
 $toast = $_GET['toast'] ?? '';
 
-// FETCH JOBS
-if ($isPoster) {
-  $stmt = $pdo->prepare("
-        SELECT j.*,
-               s.first_name AS s_first, s.last_name AS s_last,
-               s.phone AS s_phone, s.email AS s_email, s.city AS s_city,
-               ROUND(AVG(r.rating),1) AS avg_rating, COUNT(DISTINCT r.review_id) AS review_count
-        FROM jobs j
-        LEFT JOIN users s ON j.assigned_stander_id = s.user_id
-        LEFT JOIN reviews r ON r.rated_id = s.user_id
-        WHERE j.poster_id = ?
-        GROUP BY j.job_id
-        ORDER BY j.created_at DESC
-    ");
-} else {
-  $stmt = $pdo->prepare("
-        SELECT j.*, ja.status AS app_status,
-               p.first_name AS p_first, p.last_name AS p_last
-        FROM job_applications ja
-        JOIN jobs j ON ja.job_id = j.job_id
-        JOIN users p ON j.poster_id = p.user_id
-        WHERE ja.stander_id = ?
-        ORDER BY ja.applied_at DESC
-    ");
-}
-$stmt->execute([$user['id']]);
-$jobs = $stmt->fetchAll();
+// FETCH POSTED JOBS
+$postedStmt = $pdo->prepare("
+    SELECT j.*,
+           s.first_name AS s_first, s.last_name AS s_last,
+           s.phone AS s_phone, s.email AS s_email, s.city AS s_city,
+           ROUND(AVG(r.rating),1) AS avg_rating, COUNT(DISTINCT r.review_id) AS review_count
+    FROM jobs j
+    LEFT JOIN users s ON j.assigned_stander_id = s.user_id
+    LEFT JOIN reviews r ON r.rated_id = s.user_id
+    WHERE j.poster_id = ?
+    GROUP BY j.job_id
+    ORDER BY j.created_at DESC
+");
+$postedStmt->execute([$user['id']]);
+$postedJobs = $postedStmt->fetchAll();
 
-// Fetch applicants per job for poster
+// FETCH APPLICATIONS (jobs this user applied to stand in)
+$appStmt2 = $pdo->prepare("
+    SELECT j.*, ja.status AS app_status, ja.applied_at,
+           p.first_name AS p_first, p.last_name AS p_last, p.email AS p_email, p.phone AS p_phone
+    FROM job_applications ja
+    JOIN jobs j ON ja.job_id = j.job_id
+    JOIN users p ON j.poster_id = p.user_id
+    WHERE ja.stander_id = ?
+    ORDER BY ja.applied_at DESC
+");
+$appStmt2->execute([$user['id']]);
+$appliedJobs = $appStmt2->fetchAll();
+
+// FETCH APPLICANTS PER POSTED JOB
 $applicantsByJob = [];
-if ($isPoster) {
-  $appStmt = $pdo->prepare("
-        SELECT ja.*, ja.job_id,
-               u.first_name, u.last_name, u.email, u.phone, u.city,
-               ROUND(AVG(r.rating),1) AS avg_rating, COUNT(r.review_id) AS review_count
-        FROM job_applications ja
-        JOIN users u ON ja.stander_id = u.user_id
-        LEFT JOIN reviews r ON r.rated_id = u.user_id
-        WHERE ja.job_id IN (SELECT job_id FROM jobs WHERE poster_id=?)
-        GROUP BY ja.application_id
-        ORDER BY ja.applied_at ASC
-    ");
-  $appStmt->execute([$user['id']]);
-  foreach ($appStmt->fetchAll() as $app) {
-    $applicantsByJob[$app['job_id']][] = $app;
-  }
+$appStmt = $pdo->prepare("
+    SELECT ja.*, ja.job_id,
+           u.first_name, u.last_name, u.email, u.phone, u.city,
+           ROUND(AVG(r.rating),1) AS avg_rating, COUNT(r.review_id) AS review_count
+    FROM job_applications ja
+    JOIN users u ON ja.stander_id = u.user_id
+    LEFT JOIN reviews r ON r.rated_id = u.user_id
+    WHERE ja.job_id IN (SELECT job_id FROM jobs WHERE poster_id=?)
+    GROUP BY ja.application_id
+    ORDER BY ja.applied_at ASC
+");
+$appStmt->execute([$user['id']]);
+foreach ($appStmt->fetchAll() as $app) {
+  $applicantsByJob[$app['job_id']][] = $app;
 }
 
-// Fetch jobs the poster has already reviewed
-$reviewedJobIds = [];
-if ($isPoster) {
-  $revStmt = $pdo->prepare("SELECT job_id FROM reviews WHERE rater_id=?");
-  $revStmt->execute([$user['id']]);
-  $reviewedJobIds = array_column($revStmt->fetchAll(), 'job_id');
-}
+// FETCH REVIEWED JOB IDS
+$revStmt = $pdo->prepare("SELECT job_id FROM reviews WHERE rater_id=?");
+$revStmt->execute([$user['id']]);
+$reviewedJobIds = array_column($revStmt->fetchAll(), 'job_id');
 
-// Fetch unread notifications
+// FETCH NOTIFICATIONS
 $notifStmt = $pdo->prepare("SELECT * FROM notifications WHERE user_id=? ORDER BY created_at DESC LIMIT 20");
 $notifStmt->execute([$user['id']]);
 $notifications = $notifStmt->fetchAll();
 $unreadCount = count(array_filter($notifications, fn($n) => !$n['is_read']));
 
-$counts = ['total' => count($jobs), 'open' => 0, 'in_progress' => 0, 'completed' => 0];
-foreach ($jobs as $j) {
-  if (isset($counts[$j['status']]))
-    $counts[$j['status']]++;
-}
+// STATS — combine both
+$allJobStatuses = array_merge(
+  array_column($postedJobs, 'status'),
+  array_column($appliedJobs, 'status')
+);
+$counts = [
+  'posted'      => count($postedJobs),
+  'applied'     => count($appliedJobs),
+  'in_progress' => count(array_filter($allJobStatuses, fn($s) => $s === 'in_progress')),
+  'completed'   => count(array_filter($allJobStatuses, fn($s) => $s === 'completed')),
+];
 
 $statusLabels = [
-  'open' => ['label' => 'Open', 'class' => 'badge-open'],
-  'assigned' => ['label' => 'Assigned', 'class' => 'badge-assigned'],
+  'open'        => ['label' => 'Open',        'class' => 'badge-open'],
+  'assigned'    => ['label' => 'Assigned',    'class' => 'badge-assigned'],
   'in_progress' => ['label' => 'In Progress', 'class' => 'badge-progress'],
-  'completed' => ['label' => 'Completed', 'class' => 'badge-completed'],
-  'cancelled' => ['label' => 'Cancelled', 'class' => 'badge-cancelled'],
+  'completed'   => ['label' => 'Completed',   'class' => 'badge-completed'],
+  'cancelled'   => ['label' => 'Cancelled',   'class' => 'badge-cancelled'],
 ];
 
 $appStatusLabels = [
-  'pending' => ['label' => 'Pending', 'class' => 'badge-assigned'],
+  'pending'  => ['label' => 'Pending',  'class' => 'badge-assigned'],
   'accepted' => ['label' => 'Accepted', 'class' => 'badge-completed'],
   'declined' => ['label' => 'Declined', 'class' => 'badge-cancelled'],
 ];
 
 $toastMessages = [
-  'job_posted'       => ['msg' => 'Job posted successfully!', 'type' => 'toast-success'],
+  'job_posted'       => ['msg' => 'Job posted successfully! Check your dashboard below.', 'type' => 'toast-success'],
   'job_cancelled'    => ['msg' => 'Job cancelled.', 'type' => 'toast-warning'],
   'accepted'         => ['msg' => 'Stander accepted! They\'ve been notified.', 'type' => 'toast-success'],
   'declined'         => ['msg' => 'Applicant declined.', 'type' => 'toast-warning'],
@@ -198,6 +191,10 @@ $toastMessages = [
   'review_submitted' => ['msg' => 'Review submitted! Thank you.', 'type' => 'toast-success'],
   'review_exists'    => ['msg' => 'You already reviewed this job.', 'type' => 'toast-warning'],
   'review_invalid'   => ['msg' => 'Invalid review submission.', 'type' => 'toast-warning'],
+  'applied'          => ['msg' => 'Application sent! Check "Your Applications" below to track it.', 'type' => 'toast-success'],
+  'app_accepted'     => ['msg' => 'Your application was accepted! Get ready to stand.', 'type' => 'toast-success'],
+  'app_declined'     => ['msg' => 'Your application was not selected this time.', 'type' => 'toast-warning'],
+  'welcome'          => ['msg' => 'Welcome to QueueStand! Post a job or browse available queues.', 'type' => 'toast-success'],
 ];
 ?>
 <!doctype html>
@@ -269,7 +266,11 @@ $toastMessages = [
             </div>
           <?php endforeach; ?>
           <?php if ($unreadCount > 0): ?>
-            <a href="dashboard.php?mark_read=1&csrf_token=<?= generateCsrfToken() ?>" class="btn-mark-read">Mark all as read</a>
+            <form method="POST">
+              <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
+              <input type="hidden" name="mark_read" value="1">
+              <button type="submit" class="btn-mark-read">Mark all as read</button>
+            </form>
           <?php endif; ?>
         <?php endif; ?>
       </div>
@@ -279,50 +280,46 @@ $toastMessages = [
   <main>
     <div class="dash-header">
       <div>
-        <h1>Welcome back, <?= htmlspecialchars($user['first_name']) ?> </h1>
-        <p class="dash-role"><?= $isPoster ? 'Job Poster' : 'Queue Stander' ?></p>
+        <h1>Welcome back, <?= htmlspecialchars($user['first_name']) ?></h1>
+        <p class="dash-role">You can post jobs and apply to stand in queues</p>
       </div>
       <div class="dash-header-actions">
         <button class="btn-notif" onclick="openModal('notif-modal')">
           <?php if ($unreadCount > 0): ?><span class="notif-badge"><?= $unreadCount ?></span><?php endif; ?>
         </button>
-        <?php if ($isPoster): ?>
-          <a href="post-job.php" class="btn-primary">+ Post a New Job</a>
-        <?php else: ?>
-          <a href="browse-jobs.php" class="btn-primary">Browse Jobs</a>
-        <?php endif; ?>
+        <a href="post-job.php" class="btn-primary">+ Post a Job</a>
+        <a href="browse-jobs.php" class="btn-primary">Browse Jobs</a>
       </div>
     </div>
 
     <div class="dash-stats">
-      <div class="stat-card"><span class="stat-number"><?= $counts['total'] ?></span><span
-          class="stat-label">Total</span></div>
-      <div class="stat-card"><span class="stat-number"><?= $counts['open'] ?></span><span class="stat-label">Open</span>
-      </div>
-      <div class="stat-card"><span class="stat-number"><?= $counts['in_progress'] ?></span><span class="stat-label">In
-          Progress</span></div>
-      <div class="stat-card"><span class="stat-number"><?= $counts['completed'] ?></span><span
-          class="stat-label">Completed</span></div>
+      <div class="stat-card"><span class="stat-number"><?= $counts['posted'] ?></span><span class="stat-label">Jobs Posted</span></div>
+      <div class="stat-card"><span class="stat-number"><?= $counts['applied'] ?></span><span class="stat-label">Applied To</span></div>
+      <div class="stat-card"><span class="stat-number"><?= $counts['in_progress'] ?></span><span class="stat-label">In Progress</span></div>
+      <div class="stat-card"><span class="stat-number"><?= $counts['completed'] ?></span><span class="stat-label">Completed</span></div>
     </div>
 
-    <h2 class="dash-section-title"><?= $isPoster ? 'Your Posted Jobs' : 'Your Applications' ?></h2>
+    <?php
+    $nextStatus = ['assigned' => 'in_progress', 'in_progress' => 'completed'];
+    $nextLabels = ['assigned' => 'Mark as In Progress', 'in_progress' => 'Mark as Completed'];
+    ?>
 
-    <?php if (empty($jobs)): ?>
+    <!-- ── SECTION 1: POSTED JOBS ── -->
+    <h2 class="dash-section-title">Your Posted Jobs</h2>
+    <?php if (empty($postedJobs)): ?>
       <div class="dash-empty">
-        <p><?= $isPoster ? "You haven't posted any jobs yet." : 'You have no applications yet.' ?></p>
-        <a href="<?= $isPoster ? 'post-job.php' : 'browse-jobs.php' ?>" class="btn-primary">
-          <?= $isPoster ? 'Post Your First Job' : 'Find a Job' ?>
-        </a>
+        <p>You haven't posted any jobs yet.</p>
+        <a href="post-job.php" class="btn-primary">Post Your First Job</a>
       </div>
     <?php else: ?>
       <div class="dash-grid">
-        <?php foreach ($jobs as $job):
+        <?php foreach ($postedJobs as $job):
           $badge = $statusLabels[$job['status']] ?? ['label' => $job['status'], 'class' => 'badge-open'];
-          $canCancel = $isPoster && in_array($job['status'], ['open', 'assigned']);
-          $hasStander = $isPoster && !empty($job['assigned_stander_id']);
+          $hasStander = !empty($job['assigned_stander_id']);
           $applicants = $applicantsByJob[$job['job_id']] ?? [];
           $pendingApplicants = array_filter($applicants, fn($a) => $a['status'] === 'pending');
-          ?>
+          $canCancel = in_array($job['status'], ['open', 'assigned']);
+        ?>
           <div class="dash-card" id="card-<?= $job['job_id'] ?>">
             <div class="dash-card-top">
               <h3><?= htmlspecialchars($job['title']) ?></h3>
@@ -332,136 +329,128 @@ $toastMessages = [
             <p><?= date('d M Y, H:i', strtotime($job['required_datetime'])) ?></p>
             <p class="dash-pay">R <?= number_format($job['pay_amount'], 2) ?></p>
 
-            <?php if (!$isPoster):
-              // STANDER VIEW — show their application status
-              $appBadge = $appStatusLabels[$job['app_status']] ?? $appStatusLabels['pending'];
-              ?>
-              <div class="app-status-row">
-                <span>Application: </span>
-                <span id="app-badge-<?= $job['job_id'] ?>" class="badge <?= $appBadge['class'] ?>"
-                  data-prev="<?= $job['app_status'] ?>"><?= $appBadge['label'] ?></span>
-              </div>
-              <?php if ($job['app_status'] === 'accepted'): ?>
-                <div class="stander-info" style="margin-top:0.75rem">
-                  <p class="stander-title">Job Details</p>
-                  <p>Posted by: <?= htmlspecialchars($job['p_first'] . ' ' . $job['p_last']) ?></p>
-                  <p>Status: <strong><?= $badge['label'] ?></strong></p>
+            <button class="btn-expand" onclick="toggleExpand('p<?= $job['job_id'] ?>')">
+              <span id="expand-label-p<?= $job['job_id'] ?>">&#9660; Details</span>
+            </button>
+            <div id="expand-p<?= $job['job_id'] ?>" class="card-expand" style="display:none">
+              <?php if ($job['description']): ?>
+                <p class="expand-desc"><?= htmlspecialchars($job['description']) ?></p>
+              <?php endif; ?>
+
+              <?php if ($hasStander): ?>
+                <div class="stander-info" id="stander-info-<?= $job['job_id'] ?>">
+                  <p class="stander-title">Assigned Stander</p>
+                  <p><strong><?= htmlspecialchars($job['s_first'] . ' ' . $job['s_last']) ?></strong></p>
+                  <p><?= htmlspecialchars($job['s_email']) ?></p>
+                  <?php if ($job['s_phone']): ?><p><?= htmlspecialchars($job['s_phone']) ?></p><?php endif; ?>
+                  <?php if ($job['s_city']): ?><p><?= htmlspecialchars($job['s_city']) ?></p><?php endif; ?>
+                  <p><?= $job['avg_rating'] ? $job['avg_rating'] . '/5 (' . $job['review_count'] . ' reviews)' : 'No reviews yet' ?></p>
+                  <button class="btn-reviews" onclick="loadReviews(<?= $job['assigned_stander_id'] ?>, '<?= htmlspecialchars(addslashes($job['s_first'] . ' ' . $job['s_last'])) ?>')">Read Reviews</button>
+                  <?php if ($job['status'] === 'completed' && !in_array($job['job_id'], $reviewedJobIds)): ?>
+                    <button class="btn-leave-review" onclick="openReviewForm(<?= $job['job_id'] ?>, '<?= htmlspecialchars(addslashes($job['s_first'] . ' ' . $job['s_last'])) ?>')">Leave a Review</button>
+                  <?php elseif ($job['status'] === 'completed' && in_array($job['job_id'], $reviewedJobIds)): ?>
+                    <span class="reviewed-badge">✓ Reviewed</span>
+                  <?php endif; ?>
                 </div>
               <?php endif; ?>
 
-            <?php else:
-              // POSTER VIEW
-              ?>
-              <button class="btn-expand" onclick="toggleExpand(<?= $job['job_id'] ?>)">
-                <span id="expand-label-<?= $job['job_id'] ?>">▼ Details</span>
-              </button>
-
-              <div id="expand-<?= $job['job_id'] ?>" class="card-expand" style="display:none">
-                <?php if ($job['description']): ?>
-                  <p class="expand-desc"><?= htmlspecialchars($job['description']) ?></p>
-                <?php endif; ?>
-
-                <!-- ASSIGNED STANDER INFO -->
-                <?php if ($hasStander): ?>
-                  <div class="stander-info">
-                    <p class="stander-title">Assigned Stander</p>
-                    <p><strong><?= htmlspecialchars($job['s_first'] . ' ' . $job['s_last']) ?></strong></p>
-                    <p><?= htmlspecialchars($job['s_email']) ?></p>
-                    <?php if ($job['s_phone']): ?>
-                      <p><?= htmlspecialchars($job['s_phone']) ?></p><?php endif; ?>
-                    <?php if ($job['s_city']): ?>
-                      <p><?= htmlspecialchars($job['s_city']) ?></p><?php endif; ?>
-                    <p>
-                      <?= $job['avg_rating'] ? $job['avg_rating'] . '/5 (' . $job['review_count'] . ' reviews)' : 'No reviews yet' ?>
-                    </p>
-                    <button class="btn-reviews"
-                      onclick="loadReviews(<?= $job['assigned_stander_id'] ?>, '<?= htmlspecialchars(addslashes($job['s_first'] . ' ' . $job['s_last'])) ?>')">
-                      Read Reviews
-                    </button>
-                    <?php if ($job['status'] === 'completed' && !in_array($job['job_id'], $reviewedJobIds)): ?>
-                      <button class="btn-leave-review"
-                        onclick="openReviewForm(<?= $job['job_id'] ?>, '<?= htmlspecialchars(addslashes($job['s_first'] . ' ' . $job['s_last'])) ?>')">
-                        Leave a Review
-                      </button>
-                    <?php elseif ($job['status'] === 'completed' && in_array($job['job_id'], $reviewedJobIds)): ?>
-                      <span class="reviewed-badge">✓ Reviewed</span>
-                    <?php endif; ?>
-                  </div>
-                <?php endif; ?>
-
-                <!-- PENDING APPLICANTS (only when job is open) -->
-                <?php if ($job['status'] === 'open' && count($pendingApplicants) > 0): ?>
-                  <div class="applicants-section">
-                    <p id="pending-count-<?= $job['job_id'] ?>" class="applicants-title">👥 Applicants
-                      (<?= count($pendingApplicants) ?>)</p>
-                    <?php foreach ($pendingApplicants as $app): ?>
-                      <div class="applicant-card">
-                        <div class="applicant-info">
-                          <strong><?= htmlspecialchars($app['first_name'] . ' ' . $app['last_name']) ?></strong>
-                          <span class="applicant-meta">
-                            <?= $app['avg_rating'] ? '' . $app['avg_rating'] . '/5 (' . $app['review_count'] . ' reviews)' : 'No reviews' ?>
-                          </span>
-                          <span class="applicant-meta"><?= htmlspecialchars($app['email']) ?></span>
-                          <?php if ($app['phone']): ?>
-                            <span class="applicant-meta"><?= htmlspecialchars($app['phone']) ?></span>
-                          <?php endif; ?>
-                        </div>
-                        <div class="applicant-actions">
-                          <button class="btn-reviews" style="margin-right:0.4rem"
-                            onclick="loadReviews(<?= $app['stander_id'] ?>, '<?= htmlspecialchars(addslashes($app['first_name'] . ' ' . $app['last_name'])) ?>')">
-                            Reviews
-                          </button>
-                          <form method="POST" style="display:inline">
-                            <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
-                            <input type="hidden" name="job_id" value="<?= $job['job_id'] ?>">
-                            <input type="hidden" name="stander_id" value="<?= $app['stander_id'] ?>">
-                            <button type="submit" name="accept_applicant" class="btn-accept">✓ Accept</button>
-                          </form>
-                          <form method="POST" style="display:inline">
-                            <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
-                            <input type="hidden" name="job_id" value="<?= $job['job_id'] ?>">
-                            <input type="hidden" name="stander_id" value="<?= $app['stander_id'] ?>">
-                            <button type="submit" name="decline_applicant" class="btn-decline"
-                              onclick="return confirm('Decline this applicant?')">✕ Decline</button>
-                          </form>
-                        </div>
+              <?php if ($job['status'] === 'open' && count($pendingApplicants) > 0): ?>
+                <div class="applicants-section">
+                  <p id="pending-count-<?= $job['job_id'] ?>" class="applicants-title">👥 Applicants (<?= count($pendingApplicants) ?>)</p>
+                  <?php foreach ($pendingApplicants as $app): ?>
+                    <div class="applicant-card">
+                      <div class="applicant-info">
+                        <strong><?= htmlspecialchars($app['first_name'] . ' ' . $app['last_name']) ?></strong>
+                        <span class="applicant-meta"><?= $app['avg_rating'] ? $app['avg_rating'] . '/5 (' . $app['review_count'] . ' reviews)' : 'No reviews' ?></span>
+                        <span class="applicant-meta"><?= htmlspecialchars($app['email']) ?></span>
+                        <?php if ($app['phone']): ?><span class="applicant-meta"><?= htmlspecialchars($app['phone']) ?></span><?php endif; ?>
                       </div>
-                    <?php endforeach; ?>
-                  </div>
-                <?php elseif ($job['status'] === 'open' && count($applicants) === 0): ?>
-                  <p class="no-stander">No applicants yet.</p>
-                <?php endif; ?>
+                      <div class="applicant-actions">
+                        <button class="btn-reviews" style="margin-right:0.4rem" onclick="loadReviews(<?= $app['stander_id'] ?>, '<?= htmlspecialchars(addslashes($app['first_name'] . ' ' . $app['last_name'])) ?>')">Reviews</button>
+                        <form method="POST" style="display:inline">
+                          <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
+                          <input type="hidden" name="job_id" value="<?= $job['job_id'] ?>">
+                          <input type="hidden" name="stander_id" value="<?= $app['stander_id'] ?>">
+                          <button type="submit" name="accept_applicant" class="btn-accept">✓ Accept</button>
+                        </form>
+                        <form method="POST" style="display:inline">
+                          <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
+                          <input type="hidden" name="job_id" value="<?= $job['job_id'] ?>">
+                          <input type="hidden" name="stander_id" value="<?= $app['stander_id'] ?>">
+                          <button type="submit" name="decline_applicant" class="btn-decline" onclick="return confirm('Decline this applicant?')">✕ Decline</button>
+                        </form>
+                      </div>
+                    </div>
+                  <?php endforeach; ?>
+                </div>
+              <?php elseif ($job['status'] === 'open'): ?>
+                <p class="no-stander">No applicants yet.</p>
+              <?php endif; ?>
 
-                <!-- PAY NOW (assigned jobs only) -->
-                <?php if ($job['status'] === 'assigned'): ?>
-                  <a href="checkout.php?job_id=<?= $job['job_id'] ?>" class="btn-primary" style="display:inline-block;margin-top:0.75rem">💳 Pay Now</a>
-                <?php endif; ?>
+              <?php if ($job['status'] === 'assigned'): ?>
+                <a href="checkout.php?job_id=<?= $job['job_id'] ?>" class="btn-primary" style="display:inline-block;margin-top:0.75rem">💳 Pay Now</a>
+              <?php endif; ?>
 
-                <!-- STATUS PROGRESSION -->
-                <?php
-                $nextStatus = ['assigned' => 'in_progress', 'in_progress' => 'completed'];
-                $nextLabels = ['assigned' => 'Mark as In Progress', 'in_progress' => 'Mark as Completed'];
-                ?>
-                <?php if (isset($nextStatus[$job['status']])): ?>
-                  <form method="POST" style="margin-top:0.75rem">
-                    <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
-                    <input type="hidden" name="job_id" value="<?= $job['job_id'] ?>">
-                    <input type="hidden" name="current_status" value="<?= $job['status'] ?>">
-                    <button type="submit" name="advance_status" class="btn-advance">
-                      <?= $nextLabels[$job['status']] ?>
-                    </button>
-                  </form>
-                <?php endif; ?>
+              <?php if (isset($nextStatus[$job['status']])): ?>
+                <form method="POST" style="margin-top:0.75rem">
+                  <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
+                  <input type="hidden" name="job_id" value="<?= $job['job_id'] ?>">
+                  <input type="hidden" name="current_status" value="<?= $job['status'] ?>">
+                  <button type="submit" name="advance_status" class="btn-advance"><?= $nextLabels[$job['status']] ?></button>
+                </form>
+              <?php endif; ?>
 
-                <!-- CANCEL -->
-                <?php if ($canCancel): ?>
-                  <form method="POST" onsubmit="return confirm('Cancel this job? The stander will be notified.')">
-                    <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
-                    <input type="hidden" name="job_id" value="<?= $job['job_id'] ?>">
-                    <button type="submit" name="cancel_job" class="btn-cancel">Cancel Job</button>
-                  </form>
-                <?php endif; ?>
-              </div>
+              <?php if ($canCancel): ?>
+                <form method="POST" onsubmit="return confirm('Cancel this job?')">
+                  <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
+                  <input type="hidden" name="job_id" value="<?= $job['job_id'] ?>">
+                  <button type="submit" name="cancel_job" class="btn-cancel">Cancel Job</button>
+                </form>
+              <?php endif; ?>
+            </div>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    <?php endif; ?>
+
+    <!-- ── SECTION 2: APPLICATIONS ── -->
+    <h2 class="dash-section-title" style="margin-top:2.5rem">Your Applications</h2>
+    <?php if (empty($appliedJobs)): ?>
+      <div class="dash-empty">
+        <p>You haven't applied for any jobs yet.</p>
+        <a href="browse-jobs.php" class="btn-primary">Find a Job to Stand In</a>
+      </div>
+    <?php else: ?>
+      <div class="dash-grid">
+        <?php foreach ($appliedJobs as $job):
+          $badge    = $statusLabels[$job['status']]    ?? ['label' => $job['status'],        'class' => 'badge-open'];
+          $appBadge = $appStatusLabels[$job['app_status']] ?? ['label' => $job['app_status'], 'class' => 'badge-assigned'];
+        ?>
+          <div class="dash-card" id="app-card-<?= $job['job_id'] ?>">
+            <div class="dash-card-top">
+              <h3><?= htmlspecialchars($job['title']) ?></h3>
+              <span id="job-status-badge-<?= $job['job_id'] ?>" class="badge <?= $badge['class'] ?>"><?= $badge['label'] ?></span>
+            </div>
+            <div class="app-status-row" style="margin-bottom:0.5rem">
+              <span>Your application: </span>
+              <span id="app-badge-<?= $job['job_id'] ?>" class="badge <?= $appBadge['class'] ?>" data-prev="<?= $job['app_status'] ?>"><?= $appBadge['label'] ?></span>
+            </div>
+            <div class="stander-info">
+              <p class="stander-title">Job Details</p>
+              <p><strong>Location:</strong> <?= htmlspecialchars($job['location']) ?></p>
+              <p><strong>Required:</strong> <?= date('d M Y, H:i', strtotime($job['required_datetime'])) ?></p>
+              <p><strong>Pay:</strong> R <?= number_format($job['pay_amount'], 2) ?></p>
+              <p><strong>Posted by:</strong> <?= htmlspecialchars($job['p_first'] . ' ' . $job['p_last']) ?></p>
+              <?php if ($job['p_email']): ?><p><strong>Email:</strong> <?= htmlspecialchars($job['p_email']) ?></p><?php endif; ?>
+              <?php if ($job['description']): ?><p><strong>Details:</strong> <?= htmlspecialchars($job['description']) ?></p><?php endif; ?>
+              <p><strong>Applied:</strong> <?= date('d M Y, H:i', strtotime($job['applied_at'])) ?></p>
+            </div>
+            <?php if ($job['app_status'] === 'accepted'): ?>
+              <p class="msg-success" style="margin-top:0.5rem">🎉 You were accepted! Prepare to stand in the queue.</p>
+            <?php elseif ($job['app_status'] === 'declined'): ?>
+              <p class="msg-error" style="margin-top:0.5rem">You were not selected for this job.</p>
+            <?php else: ?>
+              <p style="margin-top:0.5rem;color:#888;font-size:0.85rem">Waiting for the poster to review your application.</p>
             <?php endif; ?>
           </div>
         <?php endforeach; ?>
@@ -548,18 +537,17 @@ $toastMessages = [
     }
 
     // Real-time polling
-    const isPoster = <?= $isPoster ? 'true' : 'false' ?>;
     let lastUnread = <?= $unreadCount ?>;
 
     const statusLabels = {
-      open: { label: 'Open', cls: 'badge-open' },
-      assigned: { label: 'Assigned', cls: 'badge-assigned' },
+      open:        { label: 'Open',        cls: 'badge-open' },
+      assigned:    { label: 'Assigned',    cls: 'badge-assigned' },
       in_progress: { label: 'In Progress', cls: 'badge-progress' },
-      completed: { label: 'Completed', cls: 'badge-completed' },
-      cancelled: { label: 'Cancelled', cls: 'badge-cancelled' },
+      completed:   { label: 'Completed',   cls: 'badge-completed' },
+      cancelled:   { label: 'Cancelled',   cls: 'badge-cancelled' },
     };
     const appLabels = {
-      pending: { label: 'Pending', cls: 'badge-assigned' },
+      pending:  { label: 'Pending',  cls: 'badge-assigned' },
       accepted: { label: 'Accepted', cls: 'badge-completed' },
       declined: { label: 'Declined', cls: 'badge-cancelled' },
     };
@@ -579,83 +567,73 @@ $toastMessages = [
       fetch('notifications-poll.php')
         .then(r => r.json())
         .then(data => {
-          // Update bell badge
           const bell = document.querySelector('.btn-notif');
           let badge = bell.querySelector('.notif-badge');
           if (data.unread > 0) {
-            if (!badge) {
-              badge = document.createElement('span');
-              badge.className = 'notif-badge';
-              bell.appendChild(badge);
-            }
+            if (!badge) { badge = document.createElement('span'); badge.className = 'notif-badge'; bell.appendChild(badge); }
             badge.textContent = data.unread;
-          } else if (badge) {
-            badge.remove();
-          }
-
-          // Show toast for new notifications
+          } else if (badge) { badge.remove(); }
           if (data.unread > lastUnread) {
             const newest = data.notifications.find(n => n.is_read == 0);
             if (newest) showLiveToast(newest.message, 'toast-success');
           }
           lastUnread = data.unread;
-
-          // Refresh notification modal body if open
           const modal = document.getElementById('notif-modal');
           if (modal.style.display === 'flex') {
             document.getElementById('notif-body').innerHTML = data.notifications.length
-              ? data.notifications.map(n => `
-                    <div class="notif-item ${n.is_read == 0 ? 'notif-unread' : ''}">
-                      <p>${n.message}</p>
-                      <span class="notif-time">${n.created_at}</span>
-                    </div>`).join('') +
-              (data.unread > 0 ? '<a href="dashboard.php?mark_read=1" class="btn-mark-read">Mark all as read</a>' : '')
+              ? data.notifications.map(n => `<div class="notif-item ${n.is_read == 0 ? 'notif-unread' : ''}"><p>${n.message}</p><span class="notif-time">${n.created_at}</span></div>`).join('') +
+                (data.unread > 0 ? `<form method="POST"><input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>"><input type="hidden" name="mark_read" value="1"><button type="submit" class="btn-mark-read">Mark all as read</button></form>` : '')
               : '<p>No notifications yet.</p>';
           }
-        }).catch(() => { });
+        }).catch(() => {});
     }
 
     function pollJobs() {
-      fetch('jobs-poll.php?mode=' + (isPoster ? 'poster' : 'stander'))
+      // Poll posted jobs (poster view)
+      fetch('jobs-poll.php?mode=poster')
         .then(r => r.json())
         .then(data => {
           data.forEach(row => {
-            if (isPoster) {
-              // Update pending applicant count badge on card
-              const countEl = document.getElementById('pending-count-' + row.job_id);
-              if (countEl) countEl.textContent = row.pending_count > 0
-                ? '👥 Applicants (' + row.pending_count + ')'
-                : '👥 Applicants (0)';
-              // Update job status badge
-              const badgeEl = document.getElementById('job-badge-' + row.job_id);
-              const s = statusLabels[row.status];
-              if (badgeEl && s) {
-                badgeEl.textContent = s.label;
-                badgeEl.className = 'badge ' + s.cls;
-              }
-            } else {
-              // Update application status badge for stander
-              const appEl = document.getElementById('app-badge-' + row.job_id);
-              const a = appLabels[row.app_status];
-              if (appEl && a) {
-                appEl.textContent = a.label;
-                appEl.className = 'badge ' + a.cls;
-              }
-              // If newly accepted, show toast
-              const prev = appEl ? appEl.dataset.prev : null;
-              if (appEl && prev === 'pending' && row.app_status === 'accepted') {
-                showLiveToast('Your application was accepted!', 'toast-success');
-              }
-              if (appEl && prev === 'pending' && row.app_status === 'declined') {
-                showLiveToast('Your application was not selected.', 'toast-warning');
-              }
-              if (appEl) appEl.dataset.prev = row.app_status;
+            const countEl = document.getElementById('pending-count-' + row.job_id);
+            if (countEl) countEl.textContent = '\uD83D\uDC65 Applicants (' + (row.pending_count || 0) + ')';
+            const badgeEl = document.getElementById('job-badge-' + row.job_id);
+            const s = statusLabels[row.status];
+            if (badgeEl && s) { badgeEl.textContent = s.label; badgeEl.className = 'badge ' + s.cls; }
+            const standerEl = document.getElementById('stander-info-' + row.job_id);
+            if (standerEl && row.stander_id) {
+              standerEl.style.display = 'block';
+              standerEl.innerHTML =
+                '<p class="stander-title">Assigned Stander</p>' +
+                '<p><strong>' + row.s_first + ' ' + row.s_last + '</strong></p>' +
+                '<p>' + row.s_email + '</p>' +
+                (row.s_phone ? '<p>' + row.s_phone + '</p>' : '') +
+                (row.s_city  ? '<p>' + row.s_city  + '</p>' : '') +
+                '<p>' + (row.avg_rating ? row.avg_rating + '/5 (' + row.review_count + ' reviews)' : 'No reviews yet') + '</p>';
             }
           });
-        }).catch(() => { });
+        }).catch(() => {});
+
+      // Poll applications (stander view)
+      fetch('jobs-poll.php?mode=stander')
+        .then(r => r.json())
+        .then(data => {
+          data.forEach(row => {
+            const appEl = document.getElementById('app-badge-' + row.job_id);
+            const a = appLabels[row.app_status];
+            if (appEl && a) {
+              const prev = appEl.dataset.prev;
+              appEl.textContent = a.label;
+              appEl.className = 'badge ' + a.cls;
+              if (prev === 'pending' && row.app_status === 'accepted')
+                showLiveToast('\uD83C\uDF89 Your application was accepted! Get ready to stand.', 'toast-success');
+              if (prev === 'pending' && row.app_status === 'declined')
+                showLiveToast('Your application was not selected this time.', 'toast-warning');
+              appEl.dataset.prev = row.app_status;
+            }
+          });
+        }).catch(() => {});
     }
 
-    // Poll every 5 seconds
     setInterval(pollNotifications, 5000);
     setInterval(pollJobs, 5000);
   </script>
