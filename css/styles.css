@@ -77,15 +77,11 @@ header h1 img {
   font-size: clamp(0.8rem, 1.4vw, 0.95rem);
 }
 
-.nav-toggle-wrap {
-  position: relative;
-}
-
 #main-nav {
   display: none;
   position: absolute;
   top: 100%;
-  right: 0;
+  right: clamp(0.5rem, 2vw, 1.5rem);
   background: #005a4a;
   min-width: clamp(180px, 25vw, 240px);
   border-radius: 0 0 14px 14px;
@@ -116,20 +112,16 @@ nav ul li:last-child a {
   border-bottom: none;
 }
 
-nav ul li a,
-nav ul li a:hover {
+nav a {
   color: rgba(255, 255, 255, 0.9);
   text-decoration: none;
+  transition: background 0.15s, color 0.15s, padding-left 0.15s;
   font-weight: 500;
 }
 
-nav ul li a {
-  transition: background 0.15s, color 0.15s, padding-left 0.15s;
-}
-
-nav ul li a:hover {
+nav a:hover {
   background: rgba(255, 255, 255, 0.1);
-  color: #c3fcf1 !important;
+  color: #c3fcf1;
   padding-left: clamp(1.2rem, 2.5vw, 1.8rem);
 }
 
@@ -558,25 +550,21 @@ footer {
 
 /* Navbar right-side controls (bell + menu toggle) */
 .nav-right {
-  position: relative;
   display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
   align-items: center;
   gap: 0.5rem;
 }
 
 .nav-notif-btn {
   position: relative;
-  display: flex;
-  flex-shrink: 0;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   background: rgba(255,255,255,0.1);
   border: 1px solid rgba(255,255,255,0.2);
   border-radius: 8px;
   padding: clamp(0.4rem,1vw,0.6rem) clamp(0.6rem,1.2vw,0.85rem);
-  color: white !important;
+  color: white;
   text-decoration: none;
   transition: background 0.2s, border-color 0.2s;
 }
