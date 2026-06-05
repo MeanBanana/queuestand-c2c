@@ -1,16 +1,49 @@
 <?php
+require_once __DIR__ . '/config.php';
+
 if (session_status() === PHP_SESSION_NONE) {
-    session_set_cookie_params([
-        'lifetime' => 0,
-        'path'     => '/',
-        'secure'   => false,
-        'httponly' => true,
-        'samesite' => 'Lax',
-    ]);
+    // Use DB-backed sessions on production (InfinityFree blocks filesystem sessions)
+    if (!IS_LOCAL) {
+        ini_set('session.save_handler', 'user');
+        $pdo_sess = new PDO(
+            "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4",
+            DB_USER, DB_PASS,
+            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        );
+        $pdo_sess->exec("
+            CREATE TABLE IF NOT EXISTS php_sessions (
+                session_id VARCHAR(128) PRIMARY KEY,
+                data TEXT NOT NULL,
+                updated_at INT NOT NULL
+            )
+        ");
+        session_set_save_handler(
+            fn() => true,
+            fn() => true,
+            function($id) use ($pdo_sess) {
+                $s = $pdo_sess->prepare('SELECT data FROM php_sessions WHERE session_id=? AND updated_at > ?');
+                $s->execute([$id, time() - 86400]);
+                $r = $s->fetch(PDO::FETCH_ASSOC);
+                return $r ? $r['data'] : '';
+            },
+            function($id, $data) use ($pdo_sess) {
+                $s = $pdo_sess->prepare('REPLACE INTO php_sessions (session_id,data,updated_at) VALUES (?,?,?)');
+                $s->execute([$id, $data, time()]);
+                return true;
+            },
+            function($id) use ($pdo_sess) {
+                $pdo_sess->prepare('DELETE FROM php_sessions WHERE session_id=?')->execute([$id]);
+                return true;
+            },
+            function($max) use ($pdo_sess) {
+                $pdo_sess->prepare('DELETE FROM php_sessions WHERE updated_at < ?')->execute([time() - $max]);
+                return true;
+            }
+        );
+        register_shutdown_function('session_write_close');
+    }
     session_start();
 }
-
-require_once __DIR__ . '/config.php';
 
 // Security headers
 header('X-Frame-Options: DENY');
