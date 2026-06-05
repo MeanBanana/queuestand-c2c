@@ -1,4 +1,4 @@
-<?php if (session_status() === PHP_SESSION_NONE) session_start(); ?>
+<?php if (session_status() === PHP_SESSION_NONE && !headers_sent()) session_start(); ?>
 <header>
   <div>
     <h1><a href="<?= BASE_URL ?>/index.php"><img src="<?= BASE_URL ?>/assets/Logo.png" alt="QueueStand"></a></h1>
