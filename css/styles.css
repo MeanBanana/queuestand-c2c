@@ -548,30 +548,13 @@ footer {
   margin-top: 1rem;
 }
 
-<<<<<<< HEAD
-/* Navbar notification bell link */
-.nav-notif-link {
-  position: relative;
-  display: inline-flex;
-=======
 /* Navbar right-side controls (bell + menu toggle) */
 .nav-right {
   display: flex;
->>>>>>> parent of 42e2c50 (moved bell icon to the left of burger menu)
   align-items: center;
-  padding: clamp(0.6rem, 1.2vw, 0.85rem) clamp(1rem, 2vw, 1.5rem) !important;
-  font-size: 1.1rem;
-  line-height: 1;
-  background: none !important;
-  border: none;
-  cursor: pointer;
+  gap: 0.5rem;
 }
 
-<<<<<<< HEAD
-.nav-notif-link .notif-badge {
-  top: 6px;
-  right: 6px;
-=======
 .nav-notif-btn {
   position: relative;
   display: inline-flex;
@@ -580,7 +563,7 @@ footer {
   background: rgba(255,255,255,0.1);
   border: 1px solid rgba(255,255,255,0.2);
   border-radius: 8px;
-  padding: clamp(0.4rem,1vw,0.6rem) clamp(0.6rem,1.2vw,0.85rem);
+  padding: clamp(0.4rem, 1vw, 0.6rem) clamp(0.6rem, 1.2vw, 0.85rem);
   color: white;
   text-decoration: none;
   transition: background 0.2s, border-color 0.2s;
@@ -599,7 +582,6 @@ footer {
 .nav-notif-btn .notif-badge {
   top: -5px;
   right: -5px;
->>>>>>> parent of 42e2c50 (moved bell icon to the left of burger menu)
 }
 
 /* Mobile */
