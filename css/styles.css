@@ -548,40 +548,22 @@ footer {
   margin-top: 1rem;
 }
 
-/* Navbar right-side controls (bell + menu toggle) */
-.nav-right {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.nav-notif-btn {
+/* Navbar notification bell link */
+.nav-notif-link {
   position: relative;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 8px;
-  padding: clamp(0.4rem,1vw,0.6rem) clamp(0.6rem,1.2vw,0.85rem);
-  color: white;
-  text-decoration: none;
-  transition: background 0.2s, border-color 0.2s;
+  padding: clamp(0.6rem, 1.2vw, 0.85rem) clamp(1rem, 2vw, 1.5rem) !important;
+  font-size: 1.1rem;
+  line-height: 1;
+  background: none !important;
+  border: none;
+  cursor: pointer;
 }
 
-.nav-notif-btn:hover {
-  background: rgba(255,255,255,0.18);
-  border-color: rgba(255,255,255,0.4);
-}
-
-.nav-notif-btn svg {
-  display: block;
-  stroke: white;
-}
-
-.nav-notif-btn .notif-badge {
-  top: -5px;
-  right: -5px;
+.nav-notif-link .notif-badge {
+  top: 6px;
+  right: 6px;
 }
 
 /* Mobile */

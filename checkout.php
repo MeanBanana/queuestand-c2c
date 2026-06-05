@@ -86,14 +86,14 @@ $alreadyPaid = (bool) $txStmt->fetch();
       <p class="dash-pay">R <?= number_format($job['pay_amount'], 2) ?></p>
 
       <?php if ($alreadyPaid): ?>
-        <p class="msg-success">Payment complete. This job is now in progress.</p>
+        <p class="msg-success">✅ Payment complete. This job is now in progress.</p>
         <a href="dashboard.php" class="btn-primary">Back to Dashboard</a>
       <?php else: ?>
         <form action="https://sandbox.payfast.co.za/eng/process" method="post">
           <?php foreach ($data as $key => $value): ?>
             <input type="hidden" name="<?= $key ?>" value="<?= htmlspecialchars($value, ENT_QUOTES, 'UTF-8') ?>">
           <?php endforeach; ?>
-          <button type="submit" class="btn-primary">Pay Now</button>
+          <button type="submit" class="btn-primary">💳 Pay Now</button>
         </form>
       <?php endif; ?>
     </div>

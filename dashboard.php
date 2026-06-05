@@ -285,7 +285,6 @@ $toastMessages = [
       </div>
       <div class="dash-header-actions">
         <button class="btn-notif" onclick="openModal('notif-modal')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
           <?php if ($unreadCount > 0): ?><span class="notif-badge"><?= $unreadCount ?></span><?php endif; ?>
         </button>
         <a href="post-job.php" class="btn-primary">+ Post a Job</a>
@@ -357,7 +356,7 @@ $toastMessages = [
 
               <?php if ($job['status'] === 'open' && count($pendingApplicants) > 0): ?>
                 <div class="applicants-section">
-                  <p id="pending-count-<?= $job['job_id'] ?>" class="applicants-title">Applicants (<?= count($pendingApplicants) ?>)</p>
+                  <p id="pending-count-<?= $job['job_id'] ?>" class="applicants-title">👥 Applicants (<?= count($pendingApplicants) ?>)</p>
                   <?php foreach ($pendingApplicants as $app): ?>
                     <div class="applicant-card">
                       <div class="applicant-info">
@@ -389,7 +388,7 @@ $toastMessages = [
               <?php endif; ?>
 
               <?php if ($job['status'] === 'assigned'): ?>
-                <a href="checkout.php?job_id=<?= $job['job_id'] ?>" class="btn-primary" style="display:inline-block;margin-top:0.75rem">Pay Now</a>
+                <a href="checkout.php?job_id=<?= $job['job_id'] ?>" class="btn-primary" style="display:inline-block;margin-top:0.75rem">💳 Pay Now</a>
               <?php endif; ?>
 
               <?php if (isset($nextStatus[$job['status']])): ?>
@@ -447,7 +446,7 @@ $toastMessages = [
               <p><strong>Applied:</strong> <?= date('d M Y, H:i', strtotime($job['applied_at'])) ?></p>
             </div>
             <?php if ($job['app_status'] === 'accepted'): ?>
-              <p class="msg-success" style="margin-top:0.5rem">You were accepted! Prepare to stand in the queue.</p>
+              <p class="msg-success" style="margin-top:0.5rem">🎉 You were accepted! Prepare to stand in the queue.</p>
             <?php elseif ($job['app_status'] === 'declined'): ?>
               <p class="msg-error" style="margin-top:0.5rem">You were not selected for this job.</p>
             <?php else: ?>
@@ -596,7 +595,7 @@ $toastMessages = [
         .then(data => {
           data.forEach(row => {
             const countEl = document.getElementById('pending-count-' + row.job_id);
-            if (countEl) countEl.textContent = 'Applicants (' + (row.pending_count || 0) + ')';
+            if (countEl) countEl.textContent = '\uD83D\uDC65 Applicants (' + (row.pending_count || 0) + ')';
             const badgeEl = document.getElementById('job-badge-' + row.job_id);
             const s = statusLabels[row.status];
             if (badgeEl && s) { badgeEl.textContent = s.label; badgeEl.className = 'badge ' + s.cls; }
@@ -626,7 +625,7 @@ $toastMessages = [
               appEl.textContent = a.label;
               appEl.className = 'badge ' + a.cls;
               if (prev === 'pending' && row.app_status === 'accepted')
-                showLiveToast('Your application was accepted! Get ready to stand.', 'toast-success');
+                showLiveToast('\uD83C\uDF89 Your application was accepted! Get ready to stand.', 'toast-success');
               if (prev === 'pending' && row.app_status === 'declined')
                 showLiveToast('Your application was not selected this time.', 'toast-warning');
               appEl.dataset.prev = row.app_status;
