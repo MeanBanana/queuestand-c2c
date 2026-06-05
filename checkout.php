@@ -1,7 +1,11 @@
 <?php
 require_once 'includes/auth.php';
 require_once 'includes/db.php';
-guardRoute('user');
+
+if (!isLoggedIn() || $_SESSION['role'] !== 'user') {
+    header('Location: ' . BASE_URL . '/login.php');
+    exit;
+}
 
 $job_id = (int) ($_GET['job_id'] ?? 0);
 if (!$job_id) {
@@ -26,14 +30,13 @@ if (!$job) {
 $merchant_id  = getenv('PAYFAST_MERCHANT_ID')  ?: '10048867';
 $merchant_key = getenv('PAYFAST_MERCHANT_KEY') ?: 'd8ppo20k59w3c';
 $passphrase   = getenv('PAYFAST_PASSPHRASE')   ?: '';
-$base_url     = 'https://queue-stand.infinityfree.me';
 
 $data = [
     'merchant_id'   => $merchant_id,
     'merchant_key'  => $merchant_key,
-    'return_url'    => "$base_url/payment-success.php?job_id=$job_id",
-    'cancel_url'    => "$base_url/payment-cancel.php?job_id=$job_id",
-    'notify_url'    => "$base_url/payment-notify.php",
+    'return_url'    => BASE_URL . "/payment-success.php?job_id=$job_id",
+    'cancel_url'    => BASE_URL . "/payment-cancel.php?job_id=$job_id",
+    'notify_url'    => IS_LOCAL ? '' : BASE_URL . '/payment-notify.php',
     'name_first'    => trim($job['first_name']),
     'name_last'     => trim($job['last_name']),
     'email_address' => trim($job['email']),

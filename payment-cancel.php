@@ -1,7 +1,11 @@
 <?php
 require_once 'includes/auth.php';
 require_once 'includes/db.php';
-guardRoute('user');
+
+if (!isLoggedIn() || $_SESSION['role'] !== 'user') {
+    header('Location: ' . BASE_URL . '/login.php');
+    exit;
+}
 
 $job_id = (int) ($_GET['job_id'] ?? 0);
 ?>

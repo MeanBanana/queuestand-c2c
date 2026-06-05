@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isLoggedIn() && $_SESSION['role'] =
         $pdo->prepare("INSERT INTO notifications (user_id, message) VALUES (?,?)")
             ->execute([$jobRow['poster_id'], "{$name} has applied to stand for your job: \"{$jobRow['title']}\""]);
 
-        header('Location: browse-jobs.php?toast=applied');
+        header('Location: dashboard.php?toast=applied');
         exit;
     }
 
@@ -40,17 +40,20 @@ if (isLoggedIn() && $_SESSION['role'] === 'user') {
     $appliedJobIds = array_column($rows->fetchAll(), 'job_id');
 }
 
-$jobs = $pdo->query("
+$currentUserId = isLoggedIn() ? currentUser()['id'] : null;
+$jobsStmt = $pdo->prepare("
     SELECT j.*, u.first_name, u.last_name
     FROM jobs j
     JOIN users u ON j.poster_id = u.user_id
-    WHERE j.status = 'open'
+    WHERE j.status = 'open' AND (? IS NULL OR j.poster_id != ?)
     ORDER BY j.required_datetime ASC
-")->fetchAll();
+");
+$jobsStmt->execute([$currentUserId, $currentUserId]);
+$jobs = $jobsStmt->fetchAll();
 
 $toastMessages = [
-    'applied'        => ['msg' => 'Application sent! The poster will review it.', 'type' => 'toast-success'],
-    'already_applied'=> ['msg' => 'You already applied for this job.', 'type' => 'toast-warning'],
+    'applied'         => ['msg' => 'Application sent! Check your dashboard to track it.', 'type' => 'toast-success'],
+    'already_applied' => ['msg' => 'You already applied for this job.', 'type' => 'toast-warning'],
 ];
 ?>
 <!doctype html>

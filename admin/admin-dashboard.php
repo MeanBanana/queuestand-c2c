@@ -8,7 +8,7 @@ $totalAdmins = $pdo->query("SELECT COUNT(*) FROM users WHERE role='admin'")->fet
 $totalJobs = $pdo->query("SELECT COUNT(*) FROM jobs")->fetchColumn();
 $openJobs = $pdo->query("SELECT COUNT(*) FROM jobs WHERE status='open'")->fetchColumn();
 $completedJobs = $pdo->query("SELECT COUNT(*) FROM jobs WHERE status='completed'")->fetchColumn();
-$totalRevenue = $pdo->query("SELECT COALESCE(SUM(amount),0) FROM transactions WHERE status='paid'")->fetchColumn();
+$totalRevenue = $pdo->query("SELECT COALESCE(SUM(amount),0) FROM transactions WHERE status IN ('paid','released')")->fetchColumn();
 
 $recentJobs = $pdo->query("
     SELECT j.job_id, j.title, j.status, j.pay_amount, j.created_at,
