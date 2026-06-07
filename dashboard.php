@@ -636,6 +636,8 @@ $toastMessages = [
 
     setInterval(pollNotifications, 5000);
     setInterval(pollJobs, 5000);
+
+    //test github actions
   </script>
 </body>
 
