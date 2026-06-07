@@ -1,16 +1,5 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) {
-<<<<<<< HEAD
-    session_start();
-}
-
-// Security headers (local only — InfinityFree proxy handles these on production)
-if (IS_LOCAL) {
-    header('X-Frame-Options: DENY');
-    header('X-Content-Type-Options: nosniff');
-    header('Referrer-Policy: strict-origin-when-cross-origin');
-}
-=======
     session_set_cookie_params([
         'lifetime' => 0,
         'path'     => '/',
@@ -27,7 +16,6 @@ require_once __DIR__ . '/config.php';
 header('X-Frame-Options: DENY');
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: strict-origin-when-cross-origin');
->>>>>>> parent of 3307ee2 (fix session tokens with cookies)
 
 
 function isLoggedIn(): bool {

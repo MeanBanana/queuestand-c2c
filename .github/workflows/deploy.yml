@@ -29,4 +29,3 @@ jobs:
             .gitignore
             .ftp-deploy-sync-state.json   # Important
           log-level: verbose
-          dangerous-clean-slate: true     # ← This forces full upload
