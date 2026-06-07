@@ -10,7 +10,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Upload to InfinityFree via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -22,6 +23,8 @@ jobs:
           server-dir: /htdocs/
           exclude: |
             **/.git*
-            **/.git*/**
+            **/.github*
             **/node_modules/**
             README.md
+            .gitignore
+          log-level: verbose
