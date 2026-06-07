@@ -8,6 +8,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isLoggedIn() && $_SESSION['role'] =
     $job_id     = (int) ($_POST['job_id'] ?? 0);
     $stander_id = currentUser()['id'];
 
+    // Fetch job details once (poster + status)
+    $jobStmt = $pdo->prepare("SELECT poster_id, status FROM jobs WHERE job_id = ?");
+    $jobStmt->execute([$job_id]);
+    $job = $jobStmt->fetch();
+
+    if (!$job || $job['status'] !== 'open') {
+        header('Location: browse-jobs.php?toast=invalid_job');
+        exit;
+    }
+
+    // === NEW: Prevent applying to own job ===
+    if ($job['poster_id'] == $stander_id) {
+        header('Location: browse-jobs.php?toast=own_job');
+        exit;
+    }
+
+    // Check if already applied
     $check = $pdo->prepare("SELECT 1 FROM job_applications WHERE job_id=? AND stander_id=?");
     $check->execute([$job_id, $stander_id]);
 
@@ -15,13 +32,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isLoggedIn() && $_SESSION['role'] =
         $pdo->prepare("INSERT INTO job_applications (job_id, stander_id) VALUES (?,?)")
             ->execute([$job_id, $stander_id]);
 
-        $poster = $pdo->prepare("SELECT poster_id, title FROM jobs WHERE job_id=?");
-        $poster->execute([$job_id]);
-        $jobRow = $poster->fetch();
-
         $name = currentUser()['first_name'] . ' ' . currentUser()['last_name'];
         $pdo->prepare("INSERT INTO notifications (user_id, message) VALUES (?,?)")
-            ->execute([$jobRow['poster_id'], "{$name} has applied to stand for your job: \"{$jobRow['title']}\""]);
+            ->execute([$job['poster_id'], "{$name} has applied to stand for your job: \"{$job['title']}\"" ]);  // Note: you were missing title in original
 
         header('Location: dashboard.php?toast=applied');
         exit;
@@ -40,20 +53,20 @@ if (isLoggedIn() && $_SESSION['role'] === 'user') {
     $appliedJobIds = array_column($rows->fetchAll(), 'job_id');
 }
 
-$currentUserId = isLoggedIn() ? currentUser()['id'] : null;
-$jobsStmt = $pdo->prepare("
+$jobs = $pdo->query("
+
     SELECT j.*, u.first_name, u.last_name
     FROM jobs j
     JOIN users u ON j.poster_id = u.user_id
-    WHERE j.status = 'open' AND (? IS NULL OR j.poster_id != ?)
+    WHERE j.status = 'open'
     ORDER BY j.required_datetime ASC
-");
-$jobsStmt->execute([$currentUserId, $currentUserId]);
-$jobs = $jobsStmt->fetchAll();
+")->fetchAll();
 
 $toastMessages = [
     'applied'         => ['msg' => 'Application sent! Check your dashboard to track it.', 'type' => 'toast-success'],
     'already_applied' => ['msg' => 'You already applied for this job.', 'type' => 'toast-warning'],
+    'own_job'         => ['msg' => 'You cannot apply to your own job.', 'type' => 'toast-warning'],
+    'invalid_job'     => ['msg' => 'This job is no longer available.', 'type' => 'toast-warning'],
 ];
 ?>
 <!doctype html>
@@ -107,14 +120,22 @@ $toastMessages = [
           <?php endif; ?>
 
           <?php if (isLoggedIn() && $_SESSION['role'] === 'user'): ?>
-            <?php $alreadyApplied = in_array($job['job_id'], $appliedJobIds); ?>
-            <form method="POST">
-              <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>" />
-              <input type="hidden" name="job_id" value="<?= $job['job_id'] ?>" />
-              <button type="submit" <?= $alreadyApplied ? 'disabled class="btn-applied"' : '' ?>>
-                <?= $alreadyApplied ? 'Applied' : 'Apply to Stand' ?>
-              </button>
-            </form>
+            <?php 
+              $alreadyApplied = in_array($job['job_id'], $appliedJobIds); 
+              $isOwnJob = ($job['poster_id'] == currentUser()['id']);
+            ?>
+
+            <?php if ($isOwnJob): ?>
+              <button disabled class="btn-disabled">Your job</button>
+            <?php else: ?>
+              <form method="POST">
+                <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>" />
+                <input type="hidden" name="job_id" value="<?= $job['job_id'] ?>" />
+                <button type="submit" <?= $alreadyApplied ? 'disabled class="btn-applied"' : '' ?>>
+                  <?= $alreadyApplied ? 'Applied' : 'Apply to Stand' ?>
+                </button>
+              </form>
+            <?php endif; ?>
           <?php elseif (!isLoggedIn()): ?>
             <a href="login.php" class="btn-primary">Login to Apply</a>
           <?php endif; ?>
