@@ -1,3 +1,4 @@
+<!-- Updated 2026 -->
 <?php
 require_once 'includes/auth.php';
 guardRoute('open');
