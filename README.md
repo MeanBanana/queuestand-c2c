@@ -86,12 +86,20 @@ The project was designed using standard software engineering principles.
 
 Included documentation:
 
-* Use Case Diagram
-* Context Diagram
-* Data Flow Diagram (DFD)
-* Enhanced Entity Relationship Diagram (EERD)
-* CRC Cards
-* Responsive UI Prototypes
+* **Use Case Diagram**
+  <img width="669" height="1429" alt="image" src="https://github.com/user-attachments/assets/caf49105-c812-4e05-8ced-638f187add9a" />
+  
+* **Context Diagram**
+  <img width="1075" height="566" alt="image" src="https://github.com/user-attachments/assets/0dbcc150-2fb2-4406-9f6f-7ff90960f530" />
+
+* **Data Flow Diagram (DFD)**
+  <img width="1075" height="730" alt="image" src="https://github.com/user-attachments/assets/93ba2378-4fbf-4157-b6a7-1c58c3186c76" />
+
+* **Enhanced Entity Relationship Diagram (EERD)**
+  <img width="1075" height="1302" alt="image" src="https://github.com/user-attachments/assets/d90bb154-f6c4-499f-b55e-d379c1db68d1" />
+
+* **CRC Cards**
+  <img width="1028" height="1335" alt="image" src="https://github.com/user-attachments/assets/1b64df3c-0085-465d-953f-1a7455a2b6e2" />
 
 ---
 
@@ -99,46 +107,47 @@ Included documentation:
 
 ### Landing Page
 
-![landing page](<img width="947" height="445" alt="image" src="https://github.com/user-attachments/assets/7d707ae3-de31-4dbb-91e3-b33794c64502" />)
+<img width="947" height="445" alt="Screenshot 2026-07-13 170817" src="https://github.com/user-attachments/assets/ec7766ad-244f-49e7-a5d8-08f372508c5b" />
 
-![landing page](<img width="950" height="443" alt="image" src="https://github.com/user-attachments/assets/f2bdf5c9-30af-4630-80eb-fbbcc2b80a6d" />)
+
+<img width="950" height="443" alt="image" src="https://github.com/user-attachments/assets/f2bdf5c9-30af-4630-80eb-fbbcc2b80a6d" />
 
 ### User Dashboard
 
-> *(Add screenshot here)*
+<img width="949" height="445" alt="image" src="https://github.com/user-attachments/assets/1fdf5144-8564-4d60-8711-77c227948c7b" />
+
+<img width="944" height="445" alt="image" src="https://github.com/user-attachments/assets/09a3c864-5551-4232-a523-c88e0c6bc2bf" />
+
+<img width="947" height="446" alt="image" src="https://github.com/user-attachments/assets/c162e326-1717-4226-bd81-6b8d945590ab" />
 
 ### Job Marketplace
 
-> *(Add screenshot here)*
-
-### Job Details
-
-> *(Add screenshot here)*
+<img width="950" height="445" alt="image" src="https://github.com/user-attachments/assets/a51a6e05-519b-4962-8cac-d2c19ad890b4" />
 
 ### Notifications
 
-> *(Add screenshot here)*
+<img width="388" height="350" alt="image" src="https://github.com/user-attachments/assets/735379ad-f4c6-4589-93ca-ce9f704927ab" />
+
 
 ### Admin Dashboard
 
-> *(Add screenshot here)*
+<img width="947" height="444" alt="image" src="https://github.com/user-attachments/assets/dac48668-9ab1-48dc-a5c1-135f738db819" />
+
+<img width="923" height="305" alt="image" src="https://github.com/user-attachments/assets/a3a3f4ce-03ce-41c2-a593-b3608ce864d3" />
 
 ---
 
 ## Project Structure
 
 ```text
+admin/
 assets/
 │
-├── css/
-├── js/
 ├── images/
-│
-admin/
-user/
+|
+css/
 includes/
-sql/
-
+js/
 README.md
 ```
 
