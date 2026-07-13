@@ -88,23 +88,23 @@ Included documentation:
 
 * **Use Case Diagram**
   
-  <img width="669" height="1429" alt="image" src="https://github.com/user-attachments/assets/caf49105-c812-4e05-8ced-638f187add9a" />
+  <img width="721" height="1511" alt="SummativeCaseDiagram drawio" src="https://github.com/user-attachments/assets/962ced43-79c5-467d-ae34-a14d1bab87a7" />
   
 * **Context Diagram**
   
-  <img width="1075" height="566" alt="image" src="https://github.com/user-attachments/assets/0dbcc150-2fb2-4406-9f6f-7ff90960f530" />
+  <img width="801" height="441" alt="SummativeContextDiagram drawio" src="https://github.com/user-attachments/assets/e03d1ec7-67ed-4efb-94fb-6f92479d6be0" />
 
 * **Data Flow Diagram (DFD)**
   
-  <img width="1075" height="730" alt="image" src="https://github.com/user-attachments/assets/93ba2378-4fbf-4157-b6a7-1c58c3186c76" />
+  <img width="1701" height="1181" alt="SummativeDFD drawio" src="https://github.com/user-attachments/assets/f0a98452-ad0a-4af9-8b10-a5d6521039d6" />
 
 * **Enhanced Entity Relationship Diagram (EERD)**
   
-  <img width="1075" height="1302" alt="image" src="https://github.com/user-attachments/assets/d90bb154-f6c4-499f-b55e-d379c1db68d1" />
+  <img width="1701" height="1791" alt="SummativeEERD drawio" src="https://github.com/user-attachments/assets/97bbe01e-2d98-4bed-beb7-db00a86966d1" />
 
 * **CRC Cards**
   
-  <img width="1028" height="1335" alt="image" src="https://github.com/user-attachments/assets/1b64df3c-0085-465d-953f-1a7455a2b6e2" />
+  <img width="1491" height="2041" alt="SummativeCRC drawio" src="https://github.com/user-attachments/assets/d04c1c55-7686-412e-a04a-85b17dc07d4a" />
 
 ---
 
