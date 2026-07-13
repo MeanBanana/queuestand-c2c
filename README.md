@@ -1,129 +1,212 @@
 # QueueStand
 
-A platform where users can post queue jobs or stand in queues on behalf of others. All users share the same role and can do both — only admins have access to the admin portal.
+**QueueStand** is a Customer-to-Customer (C2C) web platform that connects people who need someone to stand in a queue on their behalf with individuals willing to do so for payment.
+
+The platform provides a secure marketplace where users can post queueing jobs, browse available opportunities, apply for jobs, manage applications, complete transactions, and review one another after successful job completion.
+
+Link: https://queue-stand.infinityfree.me/index.php?i=1
 
 ---
 
-## Database Schema
+## About the Project
 
-### Users
-```sql
-CREATE TABLE users (
-    user_id INT(13) PRIMARY KEY,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    first_name VARCHAR(100) NOT NULL,
-    last_name VARCHAR(100) NOT NULL,
-    phone VARCHAR(10),
-    role ENUM('user', 'admin') NOT NULL DEFAULT 'user',
-    is_verified TINYINT(1) DEFAULT 0,
-    city VARCHAR(100) DEFAULT 'Johannesburg',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-```
+QueueStand was developed as a full-stack web development project that demonstrates the complete software development lifecycle, including:
 
-### Jobs
-```sql
-CREATE TABLE jobs (
-    job_id INT AUTO_INCREMENT PRIMARY KEY,
-    poster_id VARCHAR(13) NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    description TEXT,
-    location VARCHAR(255) NOT NULL,
-    required_datetime DATETIME NOT NULL,
-    pay_amount DECIMAL(10,2) NOT NULL,
-    status ENUM('open','assigned','in_progress','completed','cancelled') DEFAULT 'open',
-    assigned_stander_id VARCHAR(13) NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+* Requirements Analysis
+* UI/UX Prototyping
+* System Design
+* Database Design
+* Full-Stack Development
+* Testing
+* Responsive Web Design
 
-    FOREIGN KEY (poster_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (assigned_stander_id) REFERENCES users(user_id) ON DELETE SET NULL
-);
-```
+The project focuses on solving a real-world problem by allowing users to exchange time for money through a trusted digital platform.
 
-### Reviews
-```sql
-CREATE TABLE reviews (
-    review_id     INT AUTO_INCREMENT PRIMARY KEY,
-    job_id        INT NOT NULL,
-    rater_id      VARCHAR(13) NOT NULL,
-    rated_id      VARCHAR(13) NOT NULL,
-    rating        TINYINT(1) NOT NULL CHECK (rating BETWEEN 1 AND 5),
-    comment       TEXT,
-    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+---
 
-    FOREIGN KEY (job_id)   REFERENCES jobs(job_id) ON DELETE CASCADE,
-    FOREIGN KEY (rater_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (rated_id) REFERENCES users(user_id) ON DELETE CASCADE
-);
-```
+## Features
 
-### Transactions
-```sql
-CREATE TABLE transactions (
-    transaction_id INT AUTO_INCREMENT PRIMARY KEY,
-    job_id INT NOT NULL,
-    amount DECIMAL(10,2) NOT NULL,
-    status ENUM('pending','paid','released','refunded') DEFAULT 'pending',
-    payment_gateway VARCHAR(50) DEFAULT 'PayFast',
-    gateway_tx_id VARCHAR(100),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+### User Features
 
-    FOREIGN KEY (job_id) REFERENCES jobs(job_id) ON DELETE CASCADE
-);
-```
+* User Registration & Login
+* Secure Authentication
+* Create Queue Jobs
+* Browse Available Jobs
+* Apply for Jobs
+* Accept or Decline Applicants
+* Manage Posted Jobs
+* Real-Time Notifications
+* Review & Rating System
+* Transaction Tracking
+* Responsive Dashboard
 
-### Job Applications
-```sql
-CREATE TABLE job_applications (
-    application_id INT AUTO_INCREMENT PRIMARY KEY,
-    job_id INT NOT NULL,
-    stander_id VARCHAR(13) NOT NULL,
-    status ENUM('pending','accepted','declined') DEFAULT 'pending',
-    applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+### Admin Features
 
-    FOREIGN KEY (job_id) REFERENCES jobs(job_id) ON DELETE CASCADE,
-    FOREIGN KEY (stander_id) REFERENCES users(user_id) ON DELETE CASCADE
-);
-```
+* Manage Users
+* Manage Jobs
+* Monitor Platform Activity
+
+---
+
+## Built With
+
+### Frontend
+
+* HTML5
+* CSS3
+* JavaScript
+
+### Backend
+
+* PHP
+
+### Database
+
+* MySQL
+
+### Development Tools
+
+* XAMPP
+* Git
+* GitHub
+* Visual Studio Code
+
+### Software Engineering
+
+* UML
+* Entity Relationship Diagrams (EERD)
+* Data Flow Diagrams (DFD)
+* CRC Cards
+
+---
+
+## System Design
+
+The project was designed using standard software engineering principles.
+
+Included documentation:
+
+* Use Case Diagram
+* Context Diagram
+* Data Flow Diagram (DFD)
+* Enhanced Entity Relationship Diagram (EERD)
+* CRC Cards
+* Responsive UI Prototypes
+
+---
+
+## Screenshots
+
+### Landing Page
+
+![landing page](<img width="947" height="445" alt="image" src="https://github.com/user-attachments/assets/7d707ae3-de31-4dbb-91e3-b33794c64502" />)
+
+![landing page](<img width="950" height="443" alt="image" src="https://github.com/user-attachments/assets/f2bdf5c9-30af-4630-80eb-fbbcc2b80a6d" />)
+
+### User Dashboard
+
+> *(Add screenshot here)*
+
+### Job Marketplace
+
+> *(Add screenshot here)*
+
+### Job Details
+
+> *(Add screenshot here)*
 
 ### Notifications
-```sql
-CREATE TABLE notifications (
-    notification_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id VARCHAR(13) NOT NULL,
-    message TEXT NOT NULL,
-    is_read TINYINT(1) DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
-);
+> *(Add screenshot here)*
+
+### Admin Dashboard
+
+> *(Add screenshot here)*
+
+---
+
+## Project Structure
+
+```text
+assets/
+│
+├── css/
+├── js/
+├── images/
+│
+admin/
+user/
+includes/
+sql/
+
+README.md
 ```
 
 ---
 
-## Roles
+## Installation
 
-| Role    | Description                                      |
-|---------|--------------------------------------------------|
-| `user`  | Can post jobs and/or stand in queues             |
-| `admin` | Full access to the admin portal                  |
+Clone the repository
+
+```bash
+git clone https://github.com/MeanBanana/queuestand-c2c.git
+```
+
+## Core Functionality
+
+* Authentication System
+* Role-Based Access Control
+* Job Posting
+* Job Applications
+* Applicant Management
+* Notifications
+* Reviews & Ratings
+* Transaction Records
+* Responsive User Interface
 
 ---
 
-## Pages
+## Skills Demonstrated
 
-| Page                        | Access        |
-|-----------------------------|---------------|
-| `/register.php`             | Public        |
-| `/login.php`                | Public        |
-| `/dashboard.php`            | Logged in     |
-| `/post-job.php`             | Logged in     |
-| `/browse-jobs.php`          | Logged in     |
-| `/profile.php`              | Logged in     |
-| `/submit-review.php`        | Logged in     |
-| `/admin/admin-dashboard.php`| Admin only    |
-| `/admin/admin-users.php`    | Admin only    |
-| `/admin/admin-jobs.php`     | Admin only    |
-| `/admin/admin-login.php`    | Public        |
+This project demonstrates experience with:
+
+* Full-Stack Web Development
+* Object-Oriented PHP
+* Relational Database Design
+* CRUD Operations
+* Session Management
+* Authentication & Authorization
+* Responsive Web Design
+* JavaScript DOM Manipulation
+* Software Architecture
+* Database Normalization
+* UML Documentation
+* Software Development Life Cycle (SDLC)
+
+---
+
+## Future Improvements
+
+* Online Payment Integration
+* Google Maps Integration
+* Email Notifications
+* SMS Notifications
+* Real-Time Chat
+* GPS Queue Tracking
+* Mobile Application
+* REST API
+* Cloud Deployment
+
+---
+
+## Author
+
+**Carel von Ronge**
+
+Final-Year Software Development Student
+
+---
+
+## License
+
+This project is intended for educational and portfolio purposes.
