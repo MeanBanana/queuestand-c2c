@@ -87,18 +87,23 @@ The project was designed using standard software engineering principles.
 Included documentation:
 
 * **Use Case Diagram**
+  
   <img width="669" height="1429" alt="image" src="https://github.com/user-attachments/assets/caf49105-c812-4e05-8ced-638f187add9a" />
   
 * **Context Diagram**
+  
   <img width="1075" height="566" alt="image" src="https://github.com/user-attachments/assets/0dbcc150-2fb2-4406-9f6f-7ff90960f530" />
 
 * **Data Flow Diagram (DFD)**
+  
   <img width="1075" height="730" alt="image" src="https://github.com/user-attachments/assets/93ba2378-4fbf-4157-b6a7-1c58c3186c76" />
 
 * **Enhanced Entity Relationship Diagram (EERD)**
+  
   <img width="1075" height="1302" alt="image" src="https://github.com/user-attachments/assets/d90bb154-f6c4-499f-b55e-d379c1db68d1" />
 
 * **CRC Cards**
+  
   <img width="1028" height="1335" alt="image" src="https://github.com/user-attachments/assets/1b64df3c-0085-465d-953f-1a7455a2b6e2" />
 
 ---
